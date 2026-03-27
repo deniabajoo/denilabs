@@ -1,7 +1,7 @@
 # Copyright 2026 Deni Labs
 {
     "name": "Deni Labs: Approval Flow",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "summary": "Mesin persetujuan multi-tahap yang dapat dikonfigurasi untuk model Odoo apapun",
     "description": """
 Deni Labs: Approval Flow — Mesin Persetujuan Multi-Tahap untuk Odoo 19
