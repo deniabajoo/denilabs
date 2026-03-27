@@ -8,10 +8,10 @@
         <field name="subject">Action Required: Approval Request {{ object.name }}</field>
         <field name="email_from">{{ (object.company_id.email_formatted or object.requester_id.email_formatted) }}</field>
         <field name="partner_to"/>
-        <field name="body_html"><![CDATA[
+        <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear {{ ctx.get('approver_name', 'Approver') }},
+        Dear <t t-out="ctx.get('approver_name', 'Approver')"/>,
     </p>
     <br/>
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
@@ -21,30 +21,30 @@
     <table style="border: 1px solid #dee2e6; border-collapse: collapse; width: 100%; font-size: 13px;">
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold; width: 35%;">Reference</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6;">{{ object.name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6;"><t t-out="object.name"/></td>
         </tr>
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold;">Document</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6;">{{ object.res_name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6;"><t t-out="object.res_name"/></td>
         </tr>
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold;">Workflow</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6;">{{ object.config_id.name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6;"><t t-out="object.config_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold;">Stage</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6;">{{ object.current_stage_id.name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6;"><t t-out="object.current_stage_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold;">Requested By</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6;">{{ object.requester_id.name }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6;"><t t-out="object.requester_id.name"/></td>
         </tr>
-        {% if object.deadline %}
+        <t t-if="object.deadline">
         <tr>
             <td style="padding: 8px 12px; border: 1px solid #dee2e6; background: #f8f9fa; font-weight: bold;">Deadline</td>
-            <td style="padding: 8px 12px; border: 1px solid #dee2e6; color: #dc3545;">{{ object.deadline }}</td>
+            <td style="padding: 8px 12px; border: 1px solid #dee2e6; color: #dc3545;"><t t-out="object.deadline"/></td>
         </tr>
-        {% endif %}
+        </t>
     </table>
     <br/>
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
@@ -52,7 +52,7 @@
     </p>
     <br/>
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        <a href="/web#model=approval.request&amp;id={{ object.id }}&amp;view_type=form"
+        <a t-att-href="'/web#model=approval.request&amp;id=' + str(object.id) + '&amp;view_type=form'"
            style="background-color: #875A7B; color: #fff; padding: 8px 16px;
                   text-decoration: none; border-radius: 4px; font-size: 13px;">
             Review Request
@@ -63,7 +63,7 @@
         This is an automated notification from your Odoo system.
     </p>
 </div>
-        ]]></field>
+        </field>
         <field name="auto_delete" eval="True"/>
         <field name="lang">{{ object.requester_id.lang }}</field>
     </record>
