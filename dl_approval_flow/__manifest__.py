@@ -132,7 +132,7 @@ Dependensi
     "author": "Deni Labs",
     "website": "https://www.denilabs.com",
     "category": "Technical",
-    "depends": ["base", "mail", "base_automation", "sale"],
+    "depends": ["base", "mail", "base_automation", "sale", "account"],
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
@@ -145,7 +145,10 @@ Dependensi
         "views/approval_request_views.xml",
         "views/sale_order_views.xml",
         "wizard/approval_action_wizard_views.xml",
+        "wizard/approval_detect_action_wizard_views.xml",
+        "wizard/approval_dynamic_submit_wizard_views.xml",
         "views/menus.xml",
+
     ],
     "assets": {
         "web.assets_backend": [

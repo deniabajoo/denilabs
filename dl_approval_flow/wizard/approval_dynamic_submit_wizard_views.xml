@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 Deni Labs -->
+<odoo>
+
+    <!-- Dynamic Submit Wizard Form -->
+    <record id="view_approval_dynamic_submit_wizard_form" model="ir.ui.view">
+        <field name="name">approval.dynamic.submit.wizard.form</field>
+        <field name="model">approval.dynamic.submit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Submit for Approval">
+                <p class="text-info fs-5">
+                    <strong>Konfirmasi Pengajuan:</strong> Apakah Anda yakin ingin mengajukan persetujuan untuk dokumen ini?
+                </p>
+                <group invisible="1">
+                    <field name="model_name"/>
+                    <field name="res_id"/>
+                    <field name="config_id"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_submit" type="object" string="Submit" class="btn-primary" icon="fa-check"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" icon="fa-times"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Dynamic Submit Dialog -->
+    <record id="action_dynamic_submit_wizard" model="ir.actions.act_window">
+        <field name="name">Submit for Approval</field>
+        <field name="res_model">approval.dynamic.submit.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

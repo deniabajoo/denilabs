@@ -8,3 +8,9 @@ access_approval_request_manager,approval.request manager,model_approval_request,
 access_approval_request_line_user,approval.request.line user,model_approval_request_line,dl_approval_flow.group_approval_user,1,0,0,0
 access_approval_request_line_manager,approval.request.line manager,model_approval_request_line,dl_approval_flow.group_approval_manager,1,1,1,1
 access_approval_action_wizard_user,approval.action.wizard user,model_approval_action_wizard,dl_approval_flow.group_approval_user,1,1,1,1
+access_approval_gated_action_user,approval.gated.action user,model_approval_gated_action,dl_approval_flow.group_approval_user,1,0,0,0
+access_approval_gated_action_manager,approval.gated.action manager,model_approval_gated_action,dl_approval_flow.group_approval_manager,1,1,1,1
+access_approval_detect_wizard_user,approval.detect.action.wizard user,model_approval_detect_action_wizard,dl_approval_flow.group_approval_user,1,1,1,1
+access_approval_detect_wizard_line_user,approval.detect.action.wizard.line user,model_approval_detect_action_wizard_line,dl_approval_flow.group_approval_user,1,1,1,1
+access_approval_dynamic_submit_user,approval.dynamic.submit.wizard user,model_approval_dynamic_submit_wizard,dl_approval_flow.group_approval_user,1,1,1,1
+

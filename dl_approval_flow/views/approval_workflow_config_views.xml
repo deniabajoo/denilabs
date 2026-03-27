@@ -32,6 +32,17 @@
         <field name="arch" type="xml">
             <form string="Approval Workflow Configuration">
                 <header>
+                    <button name="action_generate_dynamic_integration"
+                            type="object"
+                            string="⚡ Generate Zero-Code Integration"
+                            class="btn-success"
+                            invisible="not model_id"
+                            confirm="Yakin ingin membuat injeksi UI dan Security State secara otomatis untuk model ini?"/>
+                    <button name="action_detect_actions"
+                            type="object"
+                            string="Detect Available Actions"
+                            class="btn-primary"
+                            invisible="not model_id"/>
                     <button name="action_view_requests"
                             type="object"
                             string="View Requests"
@@ -105,6 +116,28 @@
                                            invisible="approver_type != 'group'"/>
                                     <field name="escalation_user_id"
                                            optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Gated Actions"
+                              name="gated_actions">
+                            <p class="text-muted" style="margin-bottom:8px;">
+                                Tentukan aksi (tombol) mana yang diblokir sampai persetujuan diterima.
+                                Isi <b>Method Name</b> dengan nama method Python-nya (misalnya
+                                <code>action_confirm</code>, <code>action_cancel</code>).
+                            </p>
+                            <field name="gated_action_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="method_name"
+                                           placeholder="action_confirm"/>
+                                    <field name="button_label"
+                                           placeholder="Confirm"/>
+                                    <field name="block_on_states"
+                                           optional="hide"/>
+                                    <field name="error_message"
+                                           optional="hide"
+                                           placeholder="(opsional) Pesan error kustom…"/>
                                 </list>
                             </field>
                         </page>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 Deni Labs
+     License LGPL-3.0 or later (https://www.linkedin.com/in/shahrour) -->
+<odoo>
+
+    <!-- Detect Wizard Form -->
+    <record id="view_approval_detect_action_wizard_form" model="ir.ui.view">
+        <field name="name">approval.detect.action.wizard.form</field>
+        <field name="model">approval.detect.action.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Detect Available Actions">
+                <p class="text-muted">
+                    Sistem mendeteksi tombol berikut dari Form View 
+                    model <b><field name="model_id" readonly="1" class="fw-bold"/></b>.
+                    Centang aksi mana saja yang ingin digembok.
+                </p>
+                
+                <field name="line_ids" nolabel="1">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="is_selected"/>
+                        <field name="method_name"/>
+                        <field name="button_label"/>
+                    </list>
+                </field>
+
+                <footer>
+                    <button name="action_add_selected"
+                            type="object"
+                            string="Add to Gated Actions"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Detect Wizard Action -->
+    <record id="action_approval_detect_action_wizard" model="ir.actions.act_window">
+        <field name="name">Detect Target Actions</field>
+        <field name="res_model">approval.detect.action.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

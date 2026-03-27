@@ -460,11 +460,17 @@ class ApprovalRequest(models.Model):
         return None
 
     def _update_source_state(self, new_state):
-        """Write *new_state* to ``approval_state`` on the source document."""
+        """Write *new_state* to ``approval_state`` (or ``x_approval_state``) on the source document."""
         self.ensure_one()
         record = self._get_source_record()
-        if record and hasattr(record, "approval_state"):
-            record.write({"approval_state": new_state})
+        if record:
+            specific_state_field = f"x_approval_state_{self.config_id.id}"
+            if hasattr(record, specific_state_field):
+                record.write({specific_state_field: new_state})
+            elif hasattr(record, "approval_state"):
+                record.write({"approval_state": new_state})
+            elif hasattr(record, "x_approval_state"):
+                record.write({"x_approval_state": new_state})
 
     def action_open_document(self):
         """Navigate directly to the source document."""
