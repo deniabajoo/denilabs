@@ -1,0 +1,23 @@
+# Odoo Development
+# Python
+# =======
+.cursor/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.DS_Store
+*.pyo
+*.pyd
+*.venv/
+*.python-version
+
+# VS Code
+# ========
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+crm_stage_probability/i18n/crm_stage_probability.pot
