@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="0">
+
+    <!-- ── Privilege for Gifari Sale Approval ── -->
+    <record id="privilege_sale_discount_approval" model="res.groups.privilege">
+        <field name="name">Sale Discount Approval</field>
+        <field name="sequence">50</field>
+        <field name="category_id" ref="base.module_category_sales"/>
+    </record>
+
+    <!-- ── Approval Manager Group ── -->
+    <record id="group_sale_approval_manager" model="res.groups">
+        <field name="name">Sale Discount Approval Manager</field>
+        <field name="privilege_id" ref="privilege_sale_discount_approval"/>
+        <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</data>
+</odoo>

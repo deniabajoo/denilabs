@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Tree View
+         ════════════════════════════════════════════════════ -->
+
+    <record id="view_sale_discount_approval_level_tree" model="ir.ui.view">
+        <field name="name">sale.discount.approval.level.tree</field>
+        <field name="model">sale.discount.approval.level</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="min_discount"/>
+                <field name="max_discount"/>
+                <field name="approver_ids" widget="many2many_tags"/>
+                <field name="approval_mode"/>
+                <field name="company_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Form View
+         ════════════════════════════════════════════════════ -->
+
+    <record id="view_sale_discount_approval_level_form" model="ir.ui.view">
+        <field name="name">sale.discount.approval.level.form</field>
+        <field name="model">sale.discount.approval.level</field>
+        <field name="arch" type="xml">
+            <form string="Approval Level">
+                <sheet>
+                    <group>
+                        <group string="Level Configuration">
+                            <field name="sequence"/>
+                            <field name="name"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Discount Thresholds">
+                            <field name="min_discount"/>
+                            <field name="max_discount"/>
+                        </group>
+                    </group>
+                    <group string="Approvers">
+                        <field name="approval_mode"/>
+                        <field name="approver_ids" widget="many2many_tags">
+                            <list>
+                                <field name="name"/>
+                                <field name="email"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Action
+         ════════════════════════════════════════════════════ -->
+
+    <record id="action_sale_discount_approval_level" model="ir.actions.act_window">
+        <field name="name">Discount Approval Levels</field>
+        <field name="res_model">sale.discount.approval.level</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first discount approval level
+            </p>
+            <p>
+                Configure multi-level discount approval tiers.
+                Each level defines a discount threshold range and
+                which users can approve at that level.
+            </p>
+        </field>
+    </record>
+
+</odoo>

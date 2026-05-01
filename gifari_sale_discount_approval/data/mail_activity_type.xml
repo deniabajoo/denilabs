@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <record id="mail_activity_type_sale_discount_approval" model="mail.activity.type">
+        <field name="name">Sale Discount Approval Required</field>
+        <field name="summary">Discount approval needed</field>
+        <field name="icon">fa-check-circle</field>
+        <field name="delay_count">0</field>
+    </record>
+
+    <record id="mail_activity_type_stock_received_notice" model="mail.activity.type">
+        <field name="name">Stock Received — Ready to Ship</field>
+        <field name="summary">Product received in warehouse</field>
+        <field name="icon">fa-truck</field>
+        <field name="delay_count">0</field>
+    </record>
+
+</data>
+</odoo>

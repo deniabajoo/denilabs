@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Approval Queue menu under Sales main menu -->
+    <menuitem
+        id="menu_sale_approval_queue"
+        name="Approval Queue"
+        parent="sale.sale_menu_root"
+        action="action_sale_approval_queue"
+        sequence="5"
+        groups="gifari_sale_discount_approval.group_sale_approval_manager"/>
+
+    <!-- Approval Levels config menu under Settings -->
+    <menuitem
+        id="menu_sale_approval_levels"
+        name="Discount Approval Levels"
+        parent="sale.menu_sale_config"
+        action="action_sale_discount_approval_level"
+        sequence="50"
+        groups="gifari_sale_discount_approval.group_sale_approval_manager"/>
+
+</odoo>

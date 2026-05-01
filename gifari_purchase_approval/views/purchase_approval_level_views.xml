@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Tree View
+         ════════════════════════════════════════════════════ -->
+
+    <record id="view_purchase_approval_level_tree" model="ir.ui.view">
+        <field name="name">purchase.approval.level.tree</field>
+        <field name="model">purchase.approval.level</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="min_amount"/>
+                <field name="max_amount"/>
+                <field name="approver_ids" widget="many2many_tags"/>
+                <field name="approval_mode"/>
+                <field name="company_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Form View
+         ════════════════════════════════════════════════════ -->
+
+    <record id="view_purchase_approval_level_form" model="ir.ui.view">
+        <field name="name">purchase.approval.level.form</field>
+        <field name="model">purchase.approval.level</field>
+        <field name="arch" type="xml">
+            <form string="Approval Level">
+                <sheet>
+                    <group>
+                        <group string="Level Configuration">
+                            <field name="sequence"/>
+                            <field name="name"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Amount Thresholds">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="min_amount"/>
+                            <field name="max_amount"/>
+                        </group>
+                    </group>
+                    <group string="Approvers">
+                        <field name="approval_mode"/>
+                        <field name="approver_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Level — Action
+         ════════════════════════════════════════════════════ -->
+
+    <record id="action_purchase_approval_level" model="ir.actions.act_window">
+        <field name="name">Purchase Approval Levels</field>
+        <field name="res_model">purchase.approval.level</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first purchase approval level
+            </p>
+            <p>
+                Configure multi-level amount-based approval tiers.
+                Each level defines an amount range and
+                which users can approve at that level.
+            </p>
+        </field>
+    </record>
+
+</odoo>

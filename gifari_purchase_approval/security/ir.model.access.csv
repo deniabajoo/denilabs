@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_approval_level_manager,purchase.approval.level (Manager),gifari_purchase_approval.model_purchase_approval_level,gifari_purchase_approval.group_purchase_approval_manager,1,1,1,1
+access_purchase_approval_level_user,purchase.approval.level (User),gifari_purchase_approval.model_purchase_approval_level,purchase.group_purchase_user,1,0,0,0
+access_purchase_approval_log_manager,purchase.approval.log (Manager),gifari_purchase_approval.model_purchase_approval_log,gifari_purchase_approval.group_purchase_approval_manager,1,1,1,0
+access_purchase_approval_log_user,purchase.approval.log (User),gifari_purchase_approval.model_purchase_approval_log,purchase.group_purchase_user,1,0,0,0
+access_purchase_approval_wizard,purchase.approval.wizard,gifari_purchase_approval.model_purchase_approval_wizard,gifari_purchase_approval.group_purchase_approval_manager,1,1,1,0

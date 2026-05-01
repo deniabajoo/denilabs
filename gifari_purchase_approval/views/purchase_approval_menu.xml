@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Approval Queue menu under Purchase main menu -->
+    <menuitem
+        id="menu_purchase_approval_queue"
+        name="Approval Queue"
+        parent="purchase.menu_purchase_root"
+        action="action_purchase_approval_queue"
+        sequence="5"
+        groups="gifari_purchase_approval.group_purchase_approval_manager"/>
+
+    <!-- Approval Levels config menu -->
+    <menuitem
+        id="menu_purchase_approval_levels"
+        name="Amount Approval Levels"
+        parent="purchase.menu_purchase_config"
+        action="action_purchase_approval_level"
+        sequence="50"
+        groups="gifari_purchase_approval.group_purchase_approval_manager"/>
+
+</odoo>

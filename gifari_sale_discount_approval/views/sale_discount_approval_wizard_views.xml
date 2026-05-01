@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════
+         Approval Wizard — Form View
+         ════════════════════════════════════════════════════ -->
+
+    <record id="view_sale_discount_approval_wizard_form" model="ir.ui.view">
+        <field name="name">sale.discount.approval.wizard.form</field>
+        <field name="model">sale.discount.approval.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Discount Approval">
+                <group>
+                    <!-- Order Info (read-only) -->
+                    <group string="Order Information">
+                        <field name="order_id" readonly="1"/>
+                        <field name="order_partner"/>
+                        <field name="order_amount"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="level_id" readonly="1"/>
+                        <field name="current_discount"/>
+                    </group>
+
+                    <!-- Action Selection -->
+                    <group string="Your Decision">
+                        <field name="action" widget="radio"/>
+                    </group>
+                </group>
+
+                <!-- Counter-Offer Section (visible only on approve) -->
+                <group invisible="action != 'approve'">
+                    <group string="Counter-Offer (Optional)">
+                        <field name="use_counter_offer"/>
+                        <field name="counter_offer_percent"
+                               invisible="not use_counter_offer"
+                               required="use_counter_offer"/>
+                    </group>
+                </group>
+
+                <!-- Rejection Reason (visible only on reject) -->
+                <group invisible="action != 'reject'">
+                    <group string="Rejection Details">
+                        <field name="rejected_reason"
+                               placeholder="Please provide a clear reason for rejection... (Required)"
+                               required="action == 'reject'"/>
+                    </group>
+                </group>
+
+                <!-- Notes -->
+                <group>
+                    <field name="notes" placeholder="Additional notes (optional)..."/>
+                </group>
+
+                <footer>
+                    <button name="action_confirm_wizard"
+                            string="Confirm"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════
+         Settings — Sale Discount Approval Configuration
+         ════════════════════════════════════════════════════ -->
+
+    <record id="res_config_settings_view_form_sale_discount_approval" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.sale.discount.approval</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='quotation_order_setting_container']" position="inside">
+
+                <setting id="sale_discount_approval_setting"
+                         string="Discount Approval Workflow"
+                         help="Require managerial approval when Sales Order discounts exceed configured thresholds.">
+                    <field name="sale_disc_approval_enabled"/>
+                    <div class="content-group" invisible="not sale_disc_approval_enabled">
+                        <div class="row mt16">
+                            <label for="sale_disc_check_mode"
+                                   class="col-lg-4 o_light_label"/>
+                            <field name="sale_disc_check_mode"/>
+                        </div>
+                        <div class="mt8">
+                            <button name="%(action_sale_discount_approval_level)d"
+                                    icon="oi-arrow-right"
+                                    type="action"
+                                    string="Configure Approval Levels"
+                                    class="btn-link"/>
+                        </div>
+                    </div>
+                </setting>
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

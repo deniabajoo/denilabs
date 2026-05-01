@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <record id="rule_purchase_approval_log_company" model="ir.rule">
+        <field name="name">Purchase Approval Log: multi-company</field>
+        <field name="model_id" ref="model_purchase_approval_log"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_purchase_approval_level_company" model="ir.rule">
+        <field name="name">Purchase Approval Level: multi-company</field>
+        <field name="model_id" ref="model_purchase_approval_level"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</data>
+</odoo>

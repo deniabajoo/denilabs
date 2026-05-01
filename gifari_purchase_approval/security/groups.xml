@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="0">
+
+    <!-- ── Privilege for Gifari Purchase Approval ── -->
+    <record id="privilege_purchase_approval" model="res.groups.privilege">
+        <field name="name">Purchase Amount Approval</field>
+        <field name="sequence">51</field>
+        <field name="category_id" ref="base.module_category_supply_chain"/>
+    </record>
+
+    <!-- ── Approval Manager Group ── -->
+    <record id="group_purchase_approval_manager" model="res.groups">
+        <field name="name">Purchase Amount Approval Manager</field>
+        <field name="privilege_id" ref="privilege_purchase_approval"/>
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</data>
+</odoo>

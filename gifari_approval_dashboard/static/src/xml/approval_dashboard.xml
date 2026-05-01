@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="gifari_approval_dashboard.Dashboard">
+    <div class="gf-dashboard">
+        <div class="gf-header">
+            <div class="gf-header-left">
+                <h2 class="gf-title"><i class="fa fa-tachometer"/> Approval Dashboard</h2>
+                <span class="gf-subtitle">PT Indopora — Centralized Approval Monitoring</span>
+            </div>
+            <div class="gf-header-right">
+                <button class="btn gf-btn-refresh" t-on-click="onRefresh">
+                    <i class="fa fa-refresh" t-att-class="{ 'fa-spin': state.loading }"/> Refresh
+                </button>
+            </div>
+        </div>
+        <div t-if="state.loading" class="gf-loading">
+            <i class="fa fa-spinner fa-spin fa-3x"/><p>Loading...</p>
+        </div>
+        <div t-if="!state.loading" class="gf-kpi-grid">
+            <div class="gf-kpi-card gf-kpi-pending">
+                <div class="gf-kpi-icon"><i class="fa fa-clock-o"/></div>
+                <div class="gf-kpi-content">
+                    <div class="gf-kpi-value" t-out="state.kpi.total_pending || 0"/>
+                    <div class="gf-kpi-label">Total Pending</div>
+                </div>
+            </div>
+            <div class="gf-kpi-card gf-kpi-sale" t-on-click="() => this.openSaleQueue()">
+                <div class="gf-kpi-icon"><i class="fa fa-shopping-cart"/></div>
+                <div class="gf-kpi-content">
+                    <div class="gf-kpi-value" t-out="state.kpi.sale_pending || 0"/>
+                    <div class="gf-kpi-label">Sale Pending</div>
+                </div>
+            </div>
+            <div class="gf-kpi-card gf-kpi-purchase" t-on-click="() => this.openPurchaseQueue()">
+                <div class="gf-kpi-icon"><i class="fa fa-truck"/></div>
+                <div class="gf-kpi-content">
+                    <div class="gf-kpi-value" t-out="state.kpi.purchase_pending || 0"/>
+                    <div class="gf-kpi-label">Purchase Pending</div>
+                </div>
+            </div>
+            <div class="gf-kpi-card gf-kpi-approved">
+                <div class="gf-kpi-icon"><i class="fa fa-check-circle"/></div>
+                <div class="gf-kpi-content">
+                    <div class="gf-kpi-value" t-out="state.kpi.total_approved_today || 0"/>
+                    <div class="gf-kpi-label">Approved Today</div>
+                </div>
+            </div>
+            <div class="gf-kpi-card gf-kpi-rejected">
+                <div class="gf-kpi-icon"><i class="fa fa-times-circle"/></div>
+                <div class="gf-kpi-content">
+                    <div class="gf-kpi-value" t-out="state.kpi.total_rejected_today || 0"/>
+                    <div class="gf-kpi-label">Rejected Today</div>
+                </div>
+            </div>
+        </div>
+        <div t-if="!state.loading" class="gf-tabs">
+            <button t-att-class="'gf-tab ' + (state.activeTab === 'sales' ? 'active' : '')" t-on-click="() => this.setTab('sales')">
+                <i class="fa fa-shopping-cart"/> Sales
+                <span class="gf-tab-badge" t-if="state.kpi.sale_pending" t-out="state.kpi.sale_pending"/>
+            </button>
+            <button t-att-class="'gf-tab ' + (state.activeTab === 'purchases' ? 'active' : '')" t-on-click="() => this.setTab('purchases')">
+                <i class="fa fa-truck"/> Purchases
+                <span class="gf-tab-badge" t-if="state.kpi.purchase_pending" t-out="state.kpi.purchase_pending"/>
+            </button>
+            <button t-att-class="'gf-tab ' + (state.activeTab === 'activity' ? 'active' : '')" t-on-click="() => this.setTab('activity')">
+                <i class="fa fa-history"/> Activity
+            </button>
+        </div>
+        <div t-if="!state.loading and state.activeTab === 'sales'" class="gf-table-wrap">
+            <table class="gf-table" t-if="state.pending_sales.length">
+                <thead><tr><th>Order</th><th>Customer</th><th>Discount</th><th>Amount</th><th>Level</th><th>Days</th><th/></tr></thead>
+                <tbody>
+                    <tr t-foreach="state.pending_sales" t-as="so" t-key="so.id">
+                        <td class="gf-order-name" t-on-click="() => this.openSaleOrder(so.id)" t-out="so.name"/>
+                        <td t-out="so.partner_id[1]"/>
+                        <td><span class="gf-discount"><t t-out="(so.effective_max_discount || 0).toFixed(1)"/>%</span></td>
+                        <td t-out="formatCurrency(so.amount_total)"/>
+                        <td><span class="badge badge-info" t-out="so.current_approval_level_id ? so.current_approval_level_id[1] : '-'"/></td>
+                        <td><span t-att-class="'gf-aging ' + getAgingClass(so.days_pending)"><t t-out="so.days_pending"/>d</span></td>
+                        <td><button class="btn btn-sm gf-btn-open" t-on-click="() => this.openSaleOrder(so.id)"><i class="fa fa-external-link"/></button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div t-if="!state.pending_sales.length" class="gf-empty"><i class="fa fa-check-circle fa-3x"/><p>No pending sale approvals</p></div>
+        </div>
+        <div t-if="!state.loading and state.activeTab === 'purchases'" class="gf-table-wrap">
+            <table class="gf-table" t-if="state.pending_purchases.length">
+                <thead><tr><th>Order</th><th>Vendor</th><th>Amount</th><th>Total</th><th>Level</th><th>Days</th><th/></tr></thead>
+                <tbody>
+                    <tr t-foreach="state.pending_purchases" t-as="po" t-key="po.id">
+                        <td class="gf-order-name" t-on-click="() => this.openPurchaseOrder(po.id)" t-out="po.name"/>
+                        <td t-out="po.partner_id[1]"/>
+                        <td t-out="formatCurrency(po.amount_untaxed)"/>
+                        <td t-out="formatCurrency(po.amount_total)"/>
+                        <td><span class="badge badge-info" t-out="po.current_approval_level_id ? po.current_approval_level_id[1] : '-'"/></td>
+                        <td><span t-att-class="'gf-aging ' + getAgingClass(po.days_pending)"><t t-out="po.days_pending"/>d</span></td>
+                        <td><button class="btn btn-sm gf-btn-open" t-on-click="() => this.openPurchaseOrder(po.id)"><i class="fa fa-external-link"/></button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div t-if="!state.pending_purchases.length" class="gf-empty"><i class="fa fa-check-circle fa-3x"/><p>No pending purchase approvals</p></div>
+        </div>
+        <div t-if="!state.loading and state.activeTab === 'activity'" class="gf-activity-wrap">
+            <div class="gf-activity-section">
+                <h4><i class="fa fa-shopping-cart"/> Sale Activity</h4>
+                <div class="gf-activity-list" t-if="state.recent_sale_logs.length">
+                    <div t-foreach="state.recent_sale_logs" t-as="log" t-key="log.id" class="gf-activity-item">
+                        <span t-att-class="'badge ' + getActionBadgeClass(log.action)" t-out="log.action"/>
+                        <span class="gf-activity-order" t-on-click="() => this.openSaleOrder(log.order_id[0])" t-out="log.order_id[1]"/>
+                        <span class="gf-activity-user">by <t t-out="log.user_id[1]"/></span>
+                    </div>
+                </div>
+                <div t-if="!state.recent_sale_logs.length" class="gf-empty-sm">No recent activity</div>
+            </div>
+            <div class="gf-activity-section">
+                <h4><i class="fa fa-truck"/> Purchase Activity</h4>
+                <div class="gf-activity-list" t-if="state.recent_purchase_logs.length">
+                    <div t-foreach="state.recent_purchase_logs" t-as="log" t-key="log.id" class="gf-activity-item">
+                        <span t-att-class="'badge ' + getActionBadgeClass(log.action)" t-out="log.action"/>
+                        <span class="gf-activity-order" t-on-click="() => this.openPurchaseOrder(log.order_id[0])" t-out="log.order_id[1]"/>
+                        <span class="gf-activity-user">by <t t-out="log.user_id[1]"/></span>
+                    </div>
+                </div>
+                <div t-if="!state.recent_purchase_logs.length" class="gf-empty-sm">No recent activity</div>
+            </div>
+        </div>
+    </div>
+</t>
+</templates>
