@@ -15,68 +15,74 @@ class ApprovalDashboardController(http.Controller):
         today_start = fields.Date.today()
 
         # ── Sale Approval KPIs ───────────────────────────
-        sale_pending = env['sale.order'].search_count([
+        sale_pending = env['sale.order'].sudo().search_count([
             ('approval_state', '=', 'pending'),
+            ('company_id', 'in', env.companies.ids),
         ])
-        sale_approved_today = env['sale.discount.approval.log'].search_count([
+        sale_approved_today = env['sale.discount.approval.log'].sudo().search_count([
             ('action', '=', 'approve'),
+            ('company_id', 'in', env.companies.ids),
             ('timestamp', '>=', fields.Datetime.to_string(
                 fields.Datetime.start_of(fields.Datetime.now(), 'day')
             )),
         ])
-        sale_rejected_today = env['sale.discount.approval.log'].search_count([
+        sale_rejected_today = env['sale.discount.approval.log'].sudo().search_count([
             ('action', '=', 'reject'),
+            ('company_id', 'in', env.companies.ids),
             ('timestamp', '>=', fields.Datetime.to_string(
                 fields.Datetime.start_of(fields.Datetime.now(), 'day')
             )),
         ])
 
         # ── Purchase Approval KPIs ───────────────────────
-        purchase_pending = env['purchase.order'].search_count([
+        purchase_pending = env['purchase.order'].sudo().search_count([
             ('approval_state', '=', 'pending'),
+            ('company_id', 'in', env.companies.ids),
         ])
-        purchase_approved_today = env['purchase.approval.log'].search_count([
+        purchase_approved_today = env['purchase.approval.log'].sudo().search_count([
             ('action', '=', 'approve'),
+            ('company_id', 'in', env.companies.ids),
             ('timestamp', '>=', fields.Datetime.to_string(
                 fields.Datetime.start_of(fields.Datetime.now(), 'day')
             )),
         ])
-        purchase_rejected_today = env['purchase.approval.log'].search_count([
+        purchase_rejected_today = env['purchase.approval.log'].sudo().search_count([
             ('action', '=', 'reject'),
+            ('company_id', 'in', env.companies.ids),
             ('timestamp', '>=', fields.Datetime.to_string(
                 fields.Datetime.start_of(fields.Datetime.now(), 'day')
             )),
         ])
 
         # ── Pending Sale Orders (list) ───────────────────
-        pending_sales = env['sale.order'].search_read(
-            [('approval_state', '=', 'pending')],
+        pending_sales = env['sale.order'].sudo().search_read(
+            [('approval_state', '=', 'pending'), ('company_id', 'in', env.companies.ids)],
             fields=[
                 'name', 'partner_id', 'amount_total',
                 'effective_max_discount', 'current_approval_level_id',
                 'days_pending', 'submitted_by', 'user_id',
                 'currency_id',
             ],
-            order='days_pending desc',
+            order='id desc',
             limit=50,
         )
 
         # ── Pending Purchase Orders (list) ───────────────
-        pending_purchases = env['purchase.order'].search_read(
-            [('approval_state', '=', 'pending')],
+        pending_purchases = env['purchase.order'].sudo().search_read(
+            [('approval_state', '=', 'pending'), ('company_id', 'in', env.companies.ids)],
             fields=[
                 'name', 'partner_id', 'amount_untaxed',
                 'amount_total', 'current_approval_level_id',
                 'days_pending', 'submitted_by', 'user_id',
                 'currency_id',
             ],
-            order='days_pending desc',
+            order='id desc',
             limit=50,
         )
 
         # ── Recent Activity Log ──────────────────────────
-        recent_sale_logs = env['sale.discount.approval.log'].search_read(
-            [],
+        recent_sale_logs = env['sale.discount.approval.log'].sudo().search_read(
+            [('company_id', 'in', env.companies.ids)],
             fields=[
                 'order_id', 'user_id', 'action', 'timestamp',
                 'level_id', 'notes',
@@ -84,8 +90,8 @@ class ApprovalDashboardController(http.Controller):
             order='create_date desc',
             limit=10,
         )
-        recent_purchase_logs = env['purchase.approval.log'].search_read(
-            [],
+        recent_purchase_logs = env['purchase.approval.log'].sudo().search_read(
+            [('company_id', 'in', env.companies.ids)],
             fields=[
                 'order_id', 'user_id', 'action', 'timestamp',
                 'level_id', 'notes',

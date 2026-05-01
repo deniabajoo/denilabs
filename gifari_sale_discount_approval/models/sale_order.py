@@ -3,6 +3,7 @@ import logging
 from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, UserError
 from odoo.http import request
+from markupsafe import Markup
 
 _logger = logging.getLogger(__name__)
 
@@ -306,7 +307,7 @@ class SaleOrder(models.Model):
 
         # Log in chatter
         self.message_post(
-            body=_(
+            body=Markup(_(
                 "🔔 <b>Discount Approval Required</b><br/>"
                 "Max line discount: <b>%(line).2f%%</b><br/>"
                 "Global discount: <b>%(glob).2f%%</b><br/>"
@@ -315,7 +316,7 @@ class SaleOrder(models.Model):
                 glob=self.global_discount_percent,
                 level=first_level.name,
                 approvers=', '.join(first_level.approver_ids.mapped('name')),
-            ),
+            )),
             subtype_xmlid='mail.mt_note',
         )
 
@@ -350,6 +351,20 @@ class SaleOrder(models.Model):
                     amount=self.amount_total,
                 ),
             )
+
+    def _clear_approval_activities(self, user_id=None):
+        """Remove pending approval activities for this order.
+        If user_id is provided, only remove activity for that user.
+        """
+        activity_type = self.env.ref(
+            'gifari_sale_discount_approval.mail_activity_type_sale_discount_approval',
+            raise_if_not_found=False
+        )
+        if activity_type:
+            domain = [('activity_type_id', '=', activity_type.id)]
+            if user_id:
+                domain.append(('user_id', '=', user_id))
+            self.activity_ids.filtered_domain(domain).unlink()
 
     def action_approve_discount(self, notes='', counter_offer_percent=0.0):
         """Called by the wizard to approve the current level."""
@@ -387,10 +402,42 @@ class SaleOrder(models.Model):
             'ip_address': ip_address,
         })
 
-        # Clear current activities
-        self._clear_approval_activities()
+        # Mode Check: All Must Approve?
+        is_level_completed = True
+        if current_level.approval_mode == 'all_must':
+            # Count distinct approvers who have already signed off (approve or counter_offer)
+            approvals = self.env['sale.discount.approval.log'].search([
+                ('order_id', '=', self.id),
+                ('level_id', '=', current_level.id),
+                ('action', 'in', ('approve', 'counter_offer')),
+            ])
+            approved_user_ids = approvals.mapped('user_id').ids
+            required_user_ids = current_level.approver_ids.ids
+            if not all(uid in approved_user_ids for uid in required_user_ids):
+                is_level_completed = False
 
-        # Check if more levels needed (sequential)
+        if not is_level_completed:
+            # Level not yet completed, just clear current user's activity
+            self._clear_approval_activities(user_id=self.env.user.id)
+            remaining_users = current_level.approver_ids.filtered(lambda u: u.id not in approved_user_ids)
+            self.message_post(
+                body=Markup(_(
+                    "✅ <b>Approved by %(user)s</b> at level <b>%(level)s</b>.%(counter)s<br/>"
+                    "Status: <b>Waiting for others</b> (%(remaining)s)",
+                    user=self.env.user.name,
+                    level=current_level.name,
+                    counter=(
+                        _(" Counter-offer: %(pct).2f%%.", pct=counter_offer_percent)
+                        if action == 'counter_offer' else ''
+                    ),
+                    remaining=', '.join(remaining_users.mapped('name')),
+                )),
+                subtype_xmlid='mail.mt_note',
+            )
+            return True
+
+        # If level is completed, proceed to next or final
+        self._clear_approval_activities() # Clear all for this level
         next_level = self._get_next_approval_level()
         if (next_level and
                 current_level != required_level and
@@ -401,7 +448,7 @@ class SaleOrder(models.Model):
             })
             self._create_approval_activities(next_level)
             self.message_post(
-                body=_(
+                body=Markup(_(
                     "✅ <b>Approved by %(user)s</b> at level <b>%(level)s</b>."
                     "%(counter)s<br/>"
                     "Advancing to next level: <b>%(next)s</b>",
@@ -412,7 +459,7 @@ class SaleOrder(models.Model):
                         if action == 'counter_offer' else ''
                     ),
                     next=next_level.name,
-                ),
+                )),
                 subtype_xmlid='mail.mt_note',
             )
         else:
@@ -421,7 +468,7 @@ class SaleOrder(models.Model):
                 'approval_state': 'approved',
             })
             self.message_post(
-                body=_(
+                body=Markup(_(
                     "✅ <b>Final Approval by %(user)s</b> at level "
                     "<b>%(level)s</b>.%(counter)s<br/>"
                     "Order is now approved and will be confirmed.",
@@ -431,7 +478,7 @@ class SaleOrder(models.Model):
                         _(" Counter-offer: %(pct).2f%%.", pct=counter_offer_percent)
                         if action == 'counter_offer' else ''
                     ),
-                ),
+                )),
                 subtype_xmlid='mail.mt_note',
             )
             # Auto-confirm after final approval
@@ -467,13 +514,13 @@ class SaleOrder(models.Model):
         })
 
         self.message_post(
-            body=_(
+            body=Markup(_(
                 "❌ <b>Rejected by %(user)s</b> at level <b>%(level)s</b>.<br/>"
                 "Reason: %(reason)s",
                 user=self.env.user.name,
                 level=self.current_approval_level_id.name,
                 reason=reason or _('No reason provided'),
-            ),
+            )),
             subtype_xmlid='mail.mt_note',
         )
 
@@ -531,12 +578,12 @@ class SaleOrder(models.Model):
         self._create_approval_activities(first_level)
 
         self.message_post(
-            body=_(
+            body=Markup(_(
                 "🔄 <b>Re-submitted for approval</b> by %(user)s.<br/>"
                 "Assigned to: <b>%(level)s</b>",
                 user=self.env.user.name,
                 level=first_level.name,
-            ),
+            )),
             subtype_xmlid='mail.mt_note',
         )
 
@@ -600,15 +647,3 @@ class SaleOrder(models.Model):
         for line in self.order_line:
             if not line.display_type and line.discount > 0:
                 line.discount = line.discount * ratio
-
-    def _clear_approval_activities(self):
-        """Remove pending approval activities on this SO."""
-        self.ensure_one()
-        activity_type = self.env.ref(
-            'gifari_sale_discount_approval.mail_activity_type_sale_discount_approval',
-            raise_if_not_found=False,
-        )
-        if activity_type:
-            self.activity_ids.filtered(
-                lambda a: a.activity_type_id == activity_type
-            ).unlink()

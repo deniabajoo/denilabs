@@ -91,3 +91,25 @@ class SaleDiscountApprovalLevel(models.Model):
                     _("At least one approver must be assigned to level '%(name)s'.",
                       name=record.name)
                 )
+
+    # ── Automatic Security Group Granting ────────────────
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        group_manager = self.env.ref('gifari_sale_discount_approval.group_sale_approval_manager', raise_if_not_found=False)
+        if group_manager:
+            for record in records:
+                if record.approver_ids:
+                    group_manager.sudo().write({'user_ids': [(4, user.id) for user in record.approver_ids]})
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'approver_ids' in vals:
+            group_manager = self.env.ref('gifari_sale_discount_approval.group_sale_approval_manager', raise_if_not_found=False)
+            if group_manager:
+                for record in self:
+                    if record.approver_ids:
+                        group_manager.sudo().write({'user_ids': [(4, user.id) for user in record.approver_ids]})
+        return res

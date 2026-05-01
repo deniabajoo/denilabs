@@ -2,13 +2,14 @@
 import { registry } from "@web/core/registry";
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { rpc } from "@web/core/network/rpc";
 
 class ApprovalDashboard extends Component {
     static template = "gifari_approval_dashboard.Dashboard";
     static props = ["*"];
 
     setup() {
-        this.rpc = useService("rpc");
+        this.rpc = rpc;
         this.action = useService("action");
         this.state = useState({
             loading: true,

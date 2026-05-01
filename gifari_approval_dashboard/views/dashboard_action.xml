@@ -9,9 +9,18 @@
 
     <!-- Top-level menu under Sales -->
     <menuitem
-        id="menu_approval_dashboard"
+        id="menu_approval_dashboard_sale"
         name="Approval Dashboard"
         parent="sale.sale_menu_root"
+        action="action_approval_dashboard"
+        sequence="1"
+        groups="gifari_sale_discount_approval.group_sale_approval_manager,gifari_purchase_approval.group_purchase_approval_manager"/>
+
+    <!-- Top-level menu under Purchase -->
+    <menuitem
+        id="menu_approval_dashboard_purchase"
+        name="Approval Dashboard"
+        parent="purchase.menu_purchase_root"
         action="action_approval_dashboard"
         sequence="1"
         groups="gifari_sale_discount_approval.group_sale_approval_manager,gifari_purchase_approval.group_purchase_approval_manager"/>
