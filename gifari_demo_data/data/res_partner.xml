@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <!-- ══════════════════════════════════════════════════════
+         CUSTOMERS — Perusahaan Konstruksi & Infrastruktur
+         ══════════════════════════════════════════════════════ -->
+
+    <record id="partner_customer_01" model="res.partner">
+        <field name="name">PT Wijaya Karya Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="street">Jl. D.I. Panjaitan Kav. 9</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="phone">021-8192808</field>
+        <field name="email">procurement@wikakon.co.id</field>
+    </record>
+    <record id="partner_customer_02" model="res.partner">
+        <field name="name">PT Adhi Karya Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@adhi.co.id</field>
+    </record>
+    <record id="partner_customer_03" model="res.partner">
+        <field name="name">PT PP (Pembangunan Perumahan) Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Pusat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@ptpp.co.id</field>
+    </record>
+    <record id="partner_customer_04" model="res.partner">
+        <field name="name">PT Hutama Karya</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@hutamakarya.com</field>
+    </record>
+    <record id="partner_customer_05" model="res.partner">
+        <field name="name">PT Waskita Karya Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@waskita.co.id</field>
+    </record>
+    <record id="partner_customer_06" model="res.partner">
+        <field name="name">PT Nindya Karya</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Pusat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@nindyakarya.co.id</field>
+    </record>
+    <record id="partner_customer_07" model="res.partner">
+        <field name="name">PT Brantas Abipraya</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@brantas.co.id</field>
+    </record>
+    <record id="partner_customer_08" model="res.partner">
+        <field name="name">PT Jaya Konstruksi Manggala Pratama Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Barat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@jayakonstruksi.com</field>
+    </record>
+    <record id="partner_customer_09" model="res.partner">
+        <field name="name">PT Acset Indonusa Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@acset.co.id</field>
+    </record>
+    <record id="partner_customer_10" model="res.partner">
+        <field name="name">PT Total Bangun Persada Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Pusat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@totalbp.co.id</field>
+    </record>
+    <record id="partner_customer_11" model="res.partner">
+        <field name="name">PT Surya Semesta Internusa Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@suryainternusa.com</field>
+    </record>
+    <record id="partner_customer_12" model="res.partner">
+        <field name="name">PT Bukaka Teknik Utama Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Bogor</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@bukaka.com</field>
+    </record>
+    <record id="partner_customer_13" model="res.partner">
+        <field name="name">PT Ciputra Development Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Barat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@ciputra.co.id</field>
+    </record>
+    <record id="partner_customer_14" model="res.partner">
+        <field name="name">PT Summarecon Agung Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Tangerang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@summarecon.com</field>
+    </record>
+    <record id="partner_customer_15" model="res.partner">
+        <field name="name">PT Pakuwon Jati Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Surabaya</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@pakuwonjati.com</field>
+    </record>
+    <record id="partner_customer_16" model="res.partner">
+        <field name="name">PT Lippo Karawaci Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Tangerang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@lippokarawaci.co.id</field>
+    </record>
+    <record id="partner_customer_17" model="res.partner">
+        <field name="name">PT Modernland Realty Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@modernland.co.id</field>
+    </record>
+    <record id="partner_customer_18" model="res.partner">
+        <field name="name">PT Semen Indonesia Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Gresik</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@semenindonesia.com</field>
+    </record>
+    <record id="partner_customer_19" model="res.partner">
+        <field name="name">PT Krakatau Steel Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Cilegon</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@krakatausteel.com</field>
+    </record>
+    <record id="partner_customer_20" model="res.partner">
+        <field name="name">PT Elnusa Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@elnusa.co.id</field>
+    </record>
+    <record id="partner_customer_21" model="res.partner">
+        <field name="name">PT Istaka Karya</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@istakakarya.co.id</field>
+    </record>
+    <record id="partner_customer_22" model="res.partner">
+        <field name="name">PT Mega Proyek Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Bandung</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@megaproyek.co.id</field>
+    </record>
+    <record id="partner_customer_23" model="res.partner">
+        <field name="name">PT Bumi Karsa</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Makassar</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">purchasing@bumikarsa.co.id</field>
+    </record>
+    <record id="partner_customer_24" model="res.partner">
+        <field name="name">PT Tata Mulia Nusantara Indah Tbk</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">procurement@tatamulia.co.id</field>
+    </record>
+    <record id="partner_customer_25" model="res.partner">
+        <field name="name">PT Mitra Karya Jaya Sentosa</field>
+        <field name="company_type">company</field>
+        <field name="customer_rank">1</field>
+        <field name="city">Semarang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">supply@mkjs.co.id</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         VENDORS — Supplier Material & Alat Konstruksi
+         ══════════════════════════════════════════════════════ -->
+
+    <record id="partner_vendor_01" model="res.partner">
+        <field name="name">PT Semen Padang</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Padang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@semenpadang.co.id</field>
+    </record>
+    <record id="partner_vendor_02" model="res.partner">
+        <field name="name">PT Indocement Tunggal Prakarsa Tbk</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Bogor</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@indocement.co.id</field>
+    </record>
+    <record id="partner_vendor_03" model="res.partner">
+        <field name="name">PT Gunung Raja Paksi Tbk</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Bekasi</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@gunungrajapaksi.com</field>
+    </record>
+    <record id="partner_vendor_04" model="res.partner">
+        <field name="name">PT Ispat Indo</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Surabaya</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@ispatindo.com</field>
+    </record>
+    <record id="partner_vendor_05" model="res.partner">
+        <field name="name">PT Jayamix (Holcim Indonesia)</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">order@jayamix.co.id</field>
+    </record>
+    <record id="partner_vendor_06" model="res.partner">
+        <field name="name">PT Bakrie Pipe Industries</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Bekasi</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@bakriepipe.co.id</field>
+    </record>
+    <record id="partner_vendor_07" model="res.partner">
+        <field name="name">PT Komatsu Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">parts@komatsu.co.id</field>
+    </record>
+    <record id="partner_vendor_08" model="res.partner">
+        <field name="name">PT Caterpillar Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">spareparts@cat-indonesia.com</field>
+    </record>
+    <record id="partner_vendor_09" model="res.partner">
+        <field name="name">PT Trakindo Utama</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Timur</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@trakindo.co.id</field>
+    </record>
+    <record id="partner_vendor_10" model="res.partner">
+        <field name="name">PT Pionirbeton Industri</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Pusat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">order@pionirbeton.co.id</field>
+    </record>
+    <record id="partner_vendor_11" model="res.partner">
+        <field name="name">PT Master Steel Manufactory</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Surabaya</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@mastersteel.co.id</field>
+    </record>
+    <record id="partner_vendor_12" model="res.partner">
+        <field name="name">PT Hanil Jaya Steel</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Surabaya</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@haniljaya.co.id</field>
+    </record>
+    <record id="partner_vendor_13" model="res.partner">
+        <field name="name">PT Wavin Duta Jaya</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Tangerang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@wavin.co.id</field>
+    </record>
+    <record id="partner_vendor_14" model="res.partner">
+        <field name="name">PT Beton Elemenindo Perkasa</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Karawang</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@betonelemenindo.com</field>
+    </record>
+    <record id="partner_vendor_15" model="res.partner">
+        <field name="name">PT Hilti Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">customerservice@hilti.co.id</field>
+    </record>
+    <record id="partner_vendor_16" model="res.partner">
+        <field name="name">PT Fischer Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Barat</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">order@fischer.co.id</field>
+    </record>
+    <record id="partner_vendor_17" model="res.partner">
+        <field name="name">PT Sika Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Bogor</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@id.sika.com</field>
+    </record>
+    <record id="partner_vendor_18" model="res.partner">
+        <field name="name">PT Nippon Paint Indonesia</field>
+        <field name="company_type">company</field>
+        <field name="supplier_rank">1</field>
+        <field name="city">Jakarta Utara</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="email">sales@nipponpaint.co.id</field>
+    </record>
+
+</data>
+</odoo>

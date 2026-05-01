@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <!-- ══════════════════════════════════════════════════════
+         PRODUCT CATEGORIES — Konstruksi Enterprise
+         ══════════════════════════════════════════════════════ -->
+
+    <record id="categ_structural_steel" model="product.category">
+        <field name="name">Baja Struktural</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_cement_concrete" model="product.category">
+        <field name="name">Semen &amp; Beton</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_piping" model="product.category">
+        <field name="name">Perpipaan &amp; Fittings</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_heavy_equipment" model="product.category">
+        <field name="name">Alat Berat &amp; Suku Cadang</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_electrical" model="product.category">
+        <field name="name">Kelistrikan &amp; Panel</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_safety" model="product.category">
+        <field name="name">Alat Keselamatan Kerja (K3)</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_chemical" model="product.category">
+        <field name="name">Bahan Kimia Konstruksi</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_formwork" model="product.category">
+        <field name="name">Bekisting &amp; Scaffolding</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_finishing" model="product.category">
+        <field name="name">Material Finishing</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+    <record id="categ_consumable" model="product.category">
+        <field name="name">Bahan Habis Pakai</field>
+        <field name="parent_id" ref="product.product_category_goods"/>
+    </record>
+
+</data>
+</odoo>

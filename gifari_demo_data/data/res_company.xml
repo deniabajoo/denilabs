@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+    <!-- Update the main company -->
+    <record id="base.main_company" model="res.company">
+        <field name="name">PT Indopora</field>
+        <field name="street">Jl. Sudirman Kav. 50</field>
+        <field name="city">Jakarta Selatan</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="currency_id" ref="base.IDR"/>
+        <field name="phone">021-5551234</field>
+        <field name="email">info@indopora.co.id</field>
+        <field name="website">www.indopora.co.id</field>
+    </record>
+
+</data>
+</odoo>

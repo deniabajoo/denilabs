@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_gifari_demo_data_wizard_form" model="ir.ui.view">
+        <field name="name">gifari.demo.data.wizard.form</field>
+        <field name="model">gifari.demo.data.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Demo Data">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Perhatian:</strong> Aksi ini akan men-generate data transaksi dummy (SO, PO, Invoices, Stock Moves) beserta log approvalnya. Disarankan hanya digunakan pada database testing/demo.
+                    </div>
+                    <group>
+                        <field name="month_count" required="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_data" type="object" string="Generate Data" class="btn-primary" icon="fa-cogs"/>
+                    <button special="cancel" string="Batal" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_gifari_demo_data_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Indopora Demo Data</field>
+        <field name="res_model">gifari.demo.data.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu Item di dalam Settings -> Technical (atau General Settings) -->
+    <menuitem id="menu_gifari_demo_data" 
+              name="Generate Demo Data (PT Indopora)" 
+              parent="base.menu_administration" 
+              action="action_gifari_demo_data_wizard" 
+              sequence="100"/>
+
+</odoo>
