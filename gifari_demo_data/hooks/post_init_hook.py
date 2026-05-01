@@ -207,7 +207,7 @@ def _generate_purchase_orders(env, refs, company, month_start, month_end, is_las
             'order_line': [(0, 0, line) for line in lines_data],
         }
 
-        po = env['purchase.order'].with_user(staff).create(po_vals)
+        po = env['purchase.order'].sudo().create(po_vals)
         _logger.debug("Created PO %s (%s) — amount: %s", po.name, profile, po.amount_untaxed)
 
         # Decide fate
@@ -222,6 +222,13 @@ def _generate_purchase_orders(env, refs, company, month_start, month_end, is_las
             po.with_user(staff).button_confirm()
             if po.approval_state == 'pending':
                 _process_po_approval(env, refs, po, fate='approved')
+        
+        # Complete stock movements for confirmed POs
+        if po.state == 'purchase':
+            for picking in po.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')):
+                for move in picking.move_ids:
+                    move.quantity = move.product_uom_qty
+                picking.button_validate()
 
 
 def _build_po_lines(products, profile):
@@ -356,7 +363,7 @@ def _generate_sale_orders(env, refs, company, month_start, month_end, is_last_mo
             'order_line': [(0, 0, line) for line in lines_data],
         }
 
-        so = env['sale.order'].with_user(staff).create(so_vals)
+        so = env['sale.order'].sudo().create(so_vals)
         _logger.debug("Created SO %s — discount: %.1f%%", so.name, disc_pct)
 
         # Decide fate
@@ -380,6 +387,13 @@ def _generate_sale_orders(env, refs, company, month_start, month_end, is_last_mo
                 # 85% approved, 15% rejected for historical months
                 fate = 'approved' if random.random() < 0.85 else 'rejected'
                 _process_so_approval(env, refs, so, fate=fate)
+
+        # Complete stock movements for confirmed SOs
+        if so.state == 'sale':
+            for picking in so.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')):
+                for move in picking.move_ids:
+                    move.quantity = move.product_uom_qty
+                picking.button_validate()
 
 
 def _process_so_approval(env, refs, so, fate='approved'):

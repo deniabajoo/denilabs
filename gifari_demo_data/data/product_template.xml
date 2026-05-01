@@ -11,6 +11,7 @@
         <field name="name">Baja WF 200x100x5.5x8 (12m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">4850000</field>
         <field name="standard_price">3900000</field>
         <field name="uom_id" ref="uom.product_uom_unit"/>
@@ -20,6 +21,7 @@
         <field name="name">Baja WF 300x150x6.5x9 (12m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">7250000</field>
         <field name="standard_price">5800000</field>
         <field name="default_code">STL-WF300</field>
@@ -28,6 +30,7 @@
         <field name="name">Baja H-Beam 250x250x9x14 (12m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">9500000</field>
         <field name="standard_price">7600000</field>
         <field name="default_code">STL-HB250</field>
@@ -36,6 +39,7 @@
         <field name="name">Baja CNP 150x65x20x3.2 (6m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">850000</field>
         <field name="standard_price">680000</field>
         <field name="default_code">STL-CNP150</field>
@@ -44,6 +48,7 @@
         <field name="name">Besi Beton Polos D16 (12m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">185000</field>
         <field name="standard_price">148000</field>
         <field name="default_code">STL-BD16</field>
@@ -52,6 +57,7 @@
         <field name="name">Besi Beton Ulir D22 SNI (12m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">345000</field>
         <field name="standard_price">276000</field>
         <field name="default_code">STL-BD22</field>
@@ -60,6 +66,7 @@
         <field name="name">Wiremesh M8 (2.1x5.4m)</field>
         <field name="categ_id" ref="categ_structural_steel"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">520000</field>
         <field name="standard_price">416000</field>
         <field name="default_code">STL-WM8</field>
@@ -70,6 +77,7 @@
         <field name="name">Semen PCC 50kg (Tiga Roda)</field>
         <field name="categ_id" ref="categ_cement_concrete"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">72000</field>
         <field name="standard_price">58000</field>
         <field name="default_code">CMT-PCC50</field>
@@ -78,6 +86,7 @@
         <field name="name">Semen OPC 50kg (Holcim)</field>
         <field name="categ_id" ref="categ_cement_concrete"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">78000</field>
         <field name="standard_price">62000</field>
         <field name="default_code">CMT-OPC50</field>
@@ -86,6 +95,7 @@
         <field name="name">Ready Mix Beton K-300 (per m³)</field>
         <field name="categ_id" ref="categ_cement_concrete"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">1150000</field>
         <field name="standard_price">920000</field>
         <field name="uom_id" ref="uom.product_uom_cubic_meter"/>
@@ -95,6 +105,7 @@
         <field name="name">Ready Mix Beton K-400 (per m³)</field>
         <field name="categ_id" ref="categ_cement_concrete"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">1350000</field>
         <field name="standard_price">1080000</field>
         <field name="uom_id" ref="uom.product_uom_cubic_meter"/>
@@ -104,6 +115,7 @@
         <field name="name">Bata Ringan AAC 60x20x10cm</field>
         <field name="categ_id" ref="categ_cement_concrete"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">8500</field>
         <field name="standard_price">6800</field>
         <field name="default_code">CMT-AAC10</field>
@@ -114,6 +126,7 @@
         <field name="name">Pipa Galvanis 4" Sch40 (6m)</field>
         <field name="categ_id" ref="categ_piping"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">1850000</field>
         <field name="standard_price">1480000</field>
         <field name="default_code">PIP-GAL4</field>
@@ -122,6 +135,7 @@
         <field name="name">Pipa PVC AW 6" (4m)</field>
         <field name="categ_id" ref="categ_piping"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">385000</field>
         <field name="standard_price">308000</field>
         <field name="default_code">PIP-PVC6</field>
@@ -130,6 +144,7 @@
         <field name="name">Pipa HDPE PE100 Ø200mm PN10 (6m)</field>
         <field name="categ_id" ref="categ_piping"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">2750000</field>
         <field name="standard_price">2200000</field>
         <field name="default_code">PIP-HDPE200</field>
@@ -138,6 +153,7 @@
         <field name="name">Gate Valve 4" Cast Iron PN16</field>
         <field name="categ_id" ref="categ_piping"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">3200000</field>
         <field name="standard_price">2560000</field>
         <field name="default_code">PIP-GV4</field>
@@ -146,6 +162,7 @@
         <field name="name">Elbow 4" 90° Galvanis</field>
         <field name="categ_id" ref="categ_piping"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">185000</field>
         <field name="standard_price">148000</field>
         <field name="default_code">PIP-ELB4</field>
@@ -156,6 +173,7 @@
         <field name="name">Filter Oli Excavator Komatsu PC200</field>
         <field name="categ_id" ref="categ_heavy_equipment"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">450000</field>
         <field name="standard_price">360000</field>
         <field name="default_code">HVY-FO200</field>
@@ -164,6 +182,7 @@
         <field name="name">Bucket Teeth Excavator (Set 5pcs)</field>
         <field name="categ_id" ref="categ_heavy_equipment"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">3500000</field>
         <field name="standard_price">2800000</field>
         <field name="default_code">HVY-BT5</field>
@@ -172,6 +191,7 @@
         <field name="name">Hydraulic Hose 1" R2 (per meter)</field>
         <field name="categ_id" ref="categ_heavy_equipment"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">185000</field>
         <field name="standard_price">148000</field>
         <field name="uom_id" ref="uom.product_uom_meter"/>
@@ -181,6 +201,7 @@
         <field name="name">Track Shoe Bulldozer D65 (Set)</field>
         <field name="categ_id" ref="categ_heavy_equipment"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">85000000</field>
         <field name="standard_price">68000000</field>
         <field name="default_code">HVY-TS65</field>
@@ -189,6 +210,7 @@
         <field name="name">Oli Hidrolik ISO 68 (drum 209L)</field>
         <field name="categ_id" ref="categ_heavy_equipment"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">8500000</field>
         <field name="standard_price">6800000</field>
         <field name="default_code">HVY-OH68</field>
@@ -199,6 +221,7 @@
         <field name="name">Kabel NYY 4x16mm² (per meter)</field>
         <field name="categ_id" ref="categ_electrical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">125000</field>
         <field name="standard_price">100000</field>
         <field name="uom_id" ref="uom.product_uom_meter"/>
@@ -208,6 +231,7 @@
         <field name="name">Panel LVMDP 400A 3Phase</field>
         <field name="categ_id" ref="categ_electrical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">45000000</field>
         <field name="standard_price">36000000</field>
         <field name="default_code">ELC-LVMDP400</field>
@@ -216,6 +240,7 @@
         <field name="name">Genset Diesel 100 KVA Silent</field>
         <field name="categ_id" ref="categ_electrical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">185000000</field>
         <field name="standard_price">148000000</field>
         <field name="default_code">ELC-GS100</field>
@@ -224,6 +249,7 @@
         <field name="name">MCB 3 Phase 63A Schneider</field>
         <field name="categ_id" ref="categ_electrical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">850000</field>
         <field name="standard_price">680000</field>
         <field name="default_code">ELC-MCB63</field>
@@ -232,6 +258,7 @@
         <field name="name">Tower Light LED 4x400W Mobile</field>
         <field name="categ_id" ref="categ_electrical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">35000000</field>
         <field name="standard_price">28000000</field>
         <field name="default_code">ELC-TL400</field>
@@ -242,6 +269,7 @@
         <field name="name">Helm Safety MSA V-Gard SNI</field>
         <field name="categ_id" ref="categ_safety"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">165000</field>
         <field name="standard_price">132000</field>
         <field name="default_code">K3-HELM</field>
@@ -250,6 +278,7 @@
         <field name="name">Full Body Harness 3M DBI-Sala</field>
         <field name="categ_id" ref="categ_safety"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">2850000</field>
         <field name="standard_price">2280000</field>
         <field name="default_code">K3-FBH</field>
@@ -258,6 +287,7 @@
         <field name="name">Sepatu Safety Kings KWD 805</field>
         <field name="categ_id" ref="categ_safety"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">385000</field>
         <field name="standard_price">308000</field>
         <field name="default_code">K3-SPT</field>
@@ -266,6 +296,7 @@
         <field name="name">Rompi Safety Scotchlite Orange</field>
         <field name="categ_id" ref="categ_safety"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">85000</field>
         <field name="standard_price">68000</field>
         <field name="default_code">K3-RSO</field>
@@ -274,6 +305,7 @@
         <field name="name">Jaring Pengaman Proyek (per m²)</field>
         <field name="categ_id" ref="categ_safety"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">45000</field>
         <field name="standard_price">36000</field>
         <field name="uom_id" ref="uom.product_uom_square_meter"/>
@@ -285,6 +317,7 @@
         <field name="name">Sikaflex 11FC Sealant 300ml</field>
         <field name="categ_id" ref="categ_chemical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">125000</field>
         <field name="standard_price">100000</field>
         <field name="default_code">CHM-SF11</field>
@@ -293,6 +326,7 @@
         <field name="name">Sika Top Seal 107 (Set 25kg)</field>
         <field name="categ_id" ref="categ_chemical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">750000</field>
         <field name="standard_price">600000</field>
         <field name="default_code">CHM-STS107</field>
@@ -301,6 +335,7 @@
         <field name="name">SikaGrout 215 (25kg)</field>
         <field name="categ_id" ref="categ_chemical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">485000</field>
         <field name="standard_price">388000</field>
         <field name="default_code">CHM-SG215</field>
@@ -309,6 +344,7 @@
         <field name="name">Sika Plastiment BV40 (drum 200L)</field>
         <field name="categ_id" ref="categ_chemical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">6500000</field>
         <field name="standard_price">5200000</field>
         <field name="default_code">CHM-BV40</field>
@@ -317,6 +353,7 @@
         <field name="name">Epoxy Primer Floor Coating (20L)</field>
         <field name="categ_id" ref="categ_chemical"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">3200000</field>
         <field name="standard_price">2560000</field>
         <field name="default_code">CHM-EPX20</field>
@@ -327,6 +364,7 @@
         <field name="name">Scaffolding Frame 1219x1700mm</field>
         <field name="categ_id" ref="categ_formwork"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">350000</field>
         <field name="standard_price">280000</field>
         <field name="default_code">FWK-SF17</field>
@@ -335,6 +373,7 @@
         <field name="name">Jack Base Scaffolding 60cm</field>
         <field name="categ_id" ref="categ_formwork"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">85000</field>
         <field name="standard_price">68000</field>
         <field name="default_code">FWK-JB60</field>
@@ -343,6 +382,7 @@
         <field name="name">Plywood Film Face 12mm (122x244cm)</field>
         <field name="categ_id" ref="categ_formwork"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">285000</field>
         <field name="standard_price">228000</field>
         <field name="default_code">FWK-PW12</field>
@@ -351,6 +391,7 @@
         <field name="name">PERI Formwork Panel 240x90cm</field>
         <field name="categ_id" ref="categ_formwork"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">12500000</field>
         <field name="standard_price">10000000</field>
         <field name="default_code">FWK-PFP24</field>
@@ -359,6 +400,7 @@
         <field name="name">Support Props Adjustable 3.5m</field>
         <field name="categ_id" ref="categ_formwork"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">195000</field>
         <field name="standard_price">156000</field>
         <field name="default_code">FWK-SP35</field>
@@ -369,6 +411,7 @@
         <field name="name">Cat Dulux Weathershield 20L</field>
         <field name="categ_id" ref="categ_finishing"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">1250000</field>
         <field name="standard_price">1000000</field>
         <field name="default_code">FIN-DWS20</field>
@@ -377,6 +420,7 @@
         <field name="name">Keramik Granit 60x60cm Roman (per m²)</field>
         <field name="categ_id" ref="categ_finishing"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">145000</field>
         <field name="standard_price">116000</field>
         <field name="uom_id" ref="uom.product_uom_square_meter"/>
@@ -386,6 +430,7 @@
         <field name="name">Gypsum Board Jayaboard 9mm (120x240)</field>
         <field name="categ_id" ref="categ_finishing"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">95000</field>
         <field name="standard_price">76000</field>
         <field name="default_code">FIN-GB9</field>
@@ -394,6 +439,7 @@
         <field name="name">Aluminium Composite Panel 4mm (122x244)</field>
         <field name="categ_id" ref="categ_finishing"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">650000</field>
         <field name="standard_price">520000</field>
         <field name="default_code">FIN-ACP4</field>
@@ -402,6 +448,7 @@
         <field name="name">Kusen Aluminium YKK (per meter)</field>
         <field name="categ_id" ref="categ_finishing"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">285000</field>
         <field name="standard_price">228000</field>
         <field name="uom_id" ref="uom.product_uom_meter"/>
@@ -413,6 +460,7 @@
         <field name="name">Kawat Bendrat BWG 21 (per kg)</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">22000</field>
         <field name="standard_price">17600</field>
         <field name="uom_id" ref="uom.product_uom_kgm"/>
@@ -422,6 +470,7 @@
         <field name="name">Paku Beton 5cm (per kg)</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">28000</field>
         <field name="standard_price">22400</field>
         <field name="uom_id" ref="uom.product_uom_kgm"/>
@@ -431,6 +480,7 @@
         <field name="name">Kawat Las E6013 Ø3.2mm (5kg)</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">185000</field>
         <field name="standard_price">148000</field>
         <field name="default_code">CON-WR32</field>
@@ -439,6 +489,7 @@
         <field name="name">Cutting Disc 14" Metal Bosch</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">65000</field>
         <field name="standard_price">52000</field>
         <field name="default_code">CON-CD14</field>
@@ -447,6 +498,7 @@
         <field name="name">Sarung Tangan Kulit Las (pair)</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">45000</field>
         <field name="standard_price">36000</field>
         <field name="default_code">CON-STL</field>
@@ -455,6 +507,7 @@
         <field name="name">Terpal Plastik A3 4x6m</field>
         <field name="categ_id" ref="categ_consumable"/>
         <field name="type">consu</field>
+        <field name="is_storable">True</field>
         <field name="list_price">125000</field>
         <field name="standard_price">100000</field>
         <field name="default_code">CON-TP46</field>
