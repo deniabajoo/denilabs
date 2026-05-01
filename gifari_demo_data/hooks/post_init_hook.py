@@ -46,8 +46,8 @@ PO_AMOUNT_PROFILES = [
     ('enterprise', 0.15), # > 200M → L3
 ]
 
-SO_PER_MONTH_RANGE = (10, 15)
-PO_PER_MONTH_RANGE = (6, 10)
+SO_PER_MONTH_RANGE = (30, 60)
+PO_PER_MONTH_RANGE = (15, 30)
 
 
 def post_init_hook(env):
