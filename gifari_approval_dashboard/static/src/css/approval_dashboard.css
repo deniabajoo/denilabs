@@ -1,0 +1,466 @@
+/* ============================================================
+   Gifari Approval Dashboard — PT Indopora
+   Dark-mode premium design with gradient cards & animations
+   ============================================================ */
+
+:root {
+    --gad-bg: #0f172a;
+    --gad-surface: #1e293b;
+    --gad-surface-2: #253047;
+    --gad-border: #334155;
+    --gad-text: #f1f5f9;
+    --gad-text-muted: #94a3b8;
+    --gad-pending: #f59e0b;
+    --gad-approved: #10b981;
+    --gad-rejected: #ef4444;
+    --gad-sale: #6366f1;
+    --gad-purchase: #8b5cf6;
+    --gad-total: #06b6d4;
+    --gad-radius: 12px;
+    --gad-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.gifari-dashboard {
+    background: var(--gad-bg);
+    min-height: 100vh;
+    padding: 24px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--gad-text);
+}
+
+/* ── Header ── */
+.gad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: var(--gad-radius);
+    border: 1px solid var(--gad-border);
+    box-shadow: var(--gad-shadow);
+}
+
+.gad-header-left h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gad-header-left p {
+    margin: 4px 0 0;
+    color: var(--gad-text-muted);
+    font-size: 0.875rem;
+}
+
+.gad-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gad-date {
+    color: var(--gad-text-muted);
+    font-size: 0.875rem;
+    background: var(--gad-surface-2);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--gad-border);
+}
+
+.gad-refresh-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.gad-refresh-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+}
+.gad-refresh-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Filter Bar ── */
+.gad-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.gad-filter-group {
+    display: flex;
+    gap: 4px;
+    background: var(--gad-surface);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--gad-border);
+}
+
+.gad-filter-btn {
+    background: transparent;
+    color: var(--gad-text-muted);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.gad-filter-btn.active {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+}
+.gad-filter-btn:hover:not(.active) {
+    background: var(--gad-surface-2);
+    color: var(--gad-text);
+}
+
+.gad-select {
+    background: var(--gad-surface);
+    color: var(--gad-text);
+    border: 1px solid var(--gad-border);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* ── KPI Cards ── */
+.gad-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) { .gad-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .gad-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.gad-kpi-card {
+    background: var(--gad-surface);
+    border: 1px solid var(--gad-border);
+    border-radius: var(--gad-radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+}
+.gad-kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--gad-radius) var(--gad-radius) 0 0;
+}
+.gad-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gad-shadow);
+    border-color: transparent;
+}
+.gad-kpi-card.pending-so::before  { background: var(--gad-sale); }
+.gad-kpi-card.pending-po::before  { background: var(--gad-purchase); }
+.gad-kpi-card.approved::before    { background: var(--gad-approved); }
+.gad-kpi-card.rejected::before    { background: var(--gad-rejected); }
+.gad-kpi-card.total::before       { background: var(--gad-pending); }
+
+.gad-kpi-card:hover.pending-so  { border-color: var(--gad-sale); }
+.gad-kpi-card:hover.pending-po  { border-color: var(--gad-purchase); }
+.gad-kpi-card:hover.approved    { border-color: var(--gad-approved); }
+.gad-kpi-card:hover.rejected    { border-color: var(--gad-rejected); }
+.gad-kpi-card:hover.total       { border-color: var(--gad-pending); }
+
+.gad-kpi-icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+.gad-kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+    transition: all 0.4s;
+}
+.kpi-so   .gad-kpi-value { color: var(--gad-sale); }
+.kpi-po   .gad-kpi-value { color: var(--gad-purchase); }
+.kpi-app  .gad-kpi-value { color: var(--gad-approved); }
+.kpi-rej  .gad-kpi-value { color: var(--gad-rejected); }
+.kpi-tot  .gad-kpi-value { color: var(--gad-pending); }
+
+.gad-kpi-label {
+    font-size: 0.78rem;
+    color: var(--gad-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* ── Charts & Table Grid ── */
+.gad-main-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+@media (max-width: 1000px) { .gad-main-grid { grid-template-columns: 1fr; } }
+
+.gad-card {
+    background: var(--gad-surface);
+    border: 1px solid var(--gad-border);
+    border-radius: var(--gad-radius);
+    padding: 20px;
+}
+
+.gad-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--gad-text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gad-chart-container {
+    position: relative;
+    height: 220px;
+}
+
+/* ── Pending List ── */
+.gad-pending-card {
+    background: var(--gad-surface);
+    border: 1px solid var(--gad-border);
+    border-radius: var(--gad-radius);
+    overflow: hidden;
+}
+
+.gad-pending-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gad-border);
+}
+
+.gad-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gad-table thead tr {
+    background: var(--gad-surface-2);
+}
+
+.gad-table th {
+    padding: 10px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gad-text-muted);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.gad-table td {
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    border-top: 1px solid var(--gad-border);
+    vertical-align: middle;
+}
+
+.gad-table tbody tr {
+    transition: background 0.15s;
+}
+.gad-table tbody tr:hover {
+    background: var(--gad-surface-2);
+}
+
+.gad-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.gad-badge.so       { background: rgba(99,102,241,0.2); color: #818cf8; }
+.gad-badge.po       { background: rgba(139,92,246,0.2); color: #a78bfa; }
+
+.gad-aging {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+.gad-aging.green { color: var(--gad-approved); }
+.gad-aging.amber { color: var(--gad-pending); }
+.gad-aging.red   { color: var(--gad-rejected); }
+
+.gad-action-btn {
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.gad-action-btn.approve {
+    background: rgba(16,185,129,0.15);
+    color: var(--gad-approved);
+}
+.gad-action-btn.reject {
+    background: rgba(239,68,68,0.15);
+    color: var(--gad-rejected);
+}
+.gad-action-btn:hover.approve { background: var(--gad-approved); color: white; }
+.gad-action-btn:hover.reject  { background: var(--gad-rejected); color: white; }
+
+.gad-link-btn {
+    background: transparent;
+    border: none;
+    color: #818cf8;
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+
+/* ── Quick Action Modal ── */
+.gad-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.gad-modal {
+    background: var(--gad-surface);
+    border: 1px solid var(--gad-border);
+    border-radius: 16px;
+    padding: 28px;
+    min-width: 400px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.gad-modal h3 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.gad-modal .gad-modal-sub {
+    color: var(--gad-text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.gad-modal textarea {
+    width: 100%;
+    background: var(--gad-surface-2);
+    border: 1px solid var(--gad-border);
+    border-radius: 8px;
+    color: var(--gad-text);
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+.gad-modal textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+.gad-modal label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gad-text-muted);
+    margin-bottom: 6px;
+    margin-top: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.gad-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+.gad-modal-btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.gad-modal-btn.cancel  { background: var(--gad-surface-2); color: var(--gad-text); }
+.gad-modal-btn.confirm-approve { background: var(--gad-approved); color: white; }
+.gad-modal-btn.confirm-reject  { background: var(--gad-rejected); color: white; }
+.gad-modal-btn:hover { transform: translateY(-1px); }
+
+/* ── Empty State ── */
+.gad-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--gad-text-muted);
+}
+.gad-empty .gad-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.gad-empty p { margin: 0; font-size: 0.9rem; }
+
+/* ── Loading Skeleton ── */
+.gad-skeleton {
+    background: linear-gradient(90deg, var(--gad-surface) 25%, var(--gad-surface-2) 50%, var(--gad-surface) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    height: 20px;
+    margin: 4px 0;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── Scrollable table wrapper ── */
+.gad-table-wrapper {
+    overflow-x: auto;
+    max-height: 420px;
+    overflow-y: auto;
+}
+.gad-table-wrapper::-webkit-scrollbar { width: 6px; height: 6px; }
+.gad-table-wrapper::-webkit-scrollbar-track { background: var(--gad-surface); }
+.gad-table-wrapper::-webkit-scrollbar-thumb { background: var(--gad-border); border-radius: 3px; }
+
+/* ── Tooltip ── */
+.gad-disc-cell {
+    font-weight: 700;
+    color: var(--gad-rejected);
+}

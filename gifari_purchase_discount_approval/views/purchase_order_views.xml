@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- PO Form view extension -->
+    <record id="view_purchase_order_form_discount_approval" model="ir.ui.view">
+        <field name="name">purchase.order.form.discount.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header/field[@name='state']" position="after">
+                <field name="approval_state" invisible="1"/>
+                <field name="needs_approval" invisible="1"/>
+                <field name="is_current_user_approver" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning d-flex align-items-center gap-2 mb-0 rounded-0"
+                     invisible="approval_state != 'pending'" role="alert">
+                    <i class="fa fa-clock-o fa-lg me-2"/>
+                    <div class="flex-grow-1">
+                        <strong>⏳ Waiting for Discount Approval</strong>
+                        — Max Discount: <strong><field name="max_discount_percent" readonly="1" nolabel="1" widget="percentage" class="d-inline"/></strong>
+                        | Amount: <strong><field name="total_discount_amount" readonly="1" nolabel="1" class="d-inline"/></strong>
+                    </div>
+                    <div invisible="not is_current_user_approver" class="d-flex gap-2">
+                        <button name="action_open_approve_wizard" string="✅ Approve"
+                                type="object" class="btn btn-success btn-sm"/>
+                        <button name="action_open_reject_wizard" string="❌ Reject"
+                                type="object" class="btn btn-danger btn-sm"/>
+                    </div>
+                </div>
+
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-0 rounded-0"
+                     invisible="approval_state != 'approved'" role="alert">
+                    <i class="fa fa-check-circle fa-lg me-2"/>
+                    <div class="flex-grow-1">
+                        <strong>✅ Discount Approved</strong> by
+                        <field name="approval_user_id" readonly="1" nolabel="1" class="d-inline fw-bold"/>
+                        on <field name="approval_date" readonly="1" nolabel="1" class="d-inline"/>
+                        <span invisible="not approved_max_discount_percent">
+                            — Counter-offer: Max
+                            <field name="approved_max_discount_percent" readonly="1" nolabel="1" widget="percentage" class="d-inline fw-bold"/>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-flex align-items-center gap-2 mb-0 rounded-0"
+                     invisible="approval_state != 'rejected'" role="alert">
+                    <i class="fa fa-times-circle fa-lg me-2"/>
+                    <div class="flex-grow-1">
+                        <strong>❌ Discount Rejected</strong> by
+                        <field name="approval_user_id" readonly="1" nolabel="1" class="d-inline fw-bold"/>
+                        — <field name="rejected_reason" readonly="1" nolabel="1" class="d-inline"/>
+                    </div>
+                    <button name="action_reset_approval" string="🔄 Reset &amp; Revise"
+                            type="object" class="btn btn-outline-danger btn-sm"/>
+                </div>
+
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-0 rounded-0"
+                     invisible="not needs_approval or approval_state" role="alert">
+                    <i class="fa fa-exclamation-triangle fa-lg me-2"/>
+                    <span><strong>ℹ️ Approval will be required</strong> — This PO exceeds the discount threshold.</span>
+                </div>
+            </xpath>
+
+            <!-- Add discount_amount column to PO lines -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="after">
+                <field name="discount_amount" optional="show" string="Disc. Amount"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- PO List view extension -->
+    <record id="view_purchase_order_tree_discount_approval" model="ir.ui.view">
+        <field name="name">purchase.order.tree.discount.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="approval_state" optional="show"
+                       decoration-warning="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
+                <field name="max_discount_percent" optional="show" string="Max Disc %"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- PO Search view extension -->
+    <record id="view_purchase_order_search_discount_approval" model="ir.ui.view">
+        <field name="name">purchase.order.search.discount.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[last()]" position="after">
+                <separator/>
+                <filter string="⏳ Waiting Approval" name="filter_pending_approval"
+                        domain="[('approval_state', '=', 'pending')]"/>
+                <filter string="✅ Approved" name="filter_approved"
+                        domain="[('approval_state', '=', 'approved')]"/>
+                <filter string="❌ Rejected" name="filter_rejected"
+                        domain="[('approval_state', '=', 'rejected')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Approval State" name="group_by_approval_state"
+                        context="{'group_by': 'approval_state'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Approval Queue Action -->
+    <record id="action_purchase_approval_queue" model="ir.actions.act_window">
+        <field name="name">Purchase Approval Queue</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('approval_state', '=', 'pending')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Purchase Orders pending approval! 🎉</p>
+        </field>
+    </record>
+
+</odoo>

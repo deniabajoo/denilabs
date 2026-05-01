@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_order_approval_manager,purchase.order (Approval Manager),purchase.model_purchase_order,gifari_purchase_discount_approval.group_purchase_approval_manager,1,1,1,0
+access_purchase_order_line_approval,purchase.order.line (Approval),purchase.model_purchase_order_line,gifari_purchase_discount_approval.group_purchase_approval_manager,1,1,0,0
+access_purchase_discount_approval_wizard_user,purchase.discount.approval.wizard (User),gifari_purchase_discount_approval.model_purchase_discount_approval_wizard,base.group_user,1,1,1,1
