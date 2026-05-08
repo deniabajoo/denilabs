@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Report Action -->
+    <!-- ============================================================ -->
+    <record id="action_report_vendor_scoring" model="ir.actions.report">
+        <field name="name">Laporan Evaluasi Pemasok</field>
+        <field name="model">scoring.period</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">gifari_vendor_scoring.report_vendor_scoring</field>
+        <field name="report_file">gifari_vendor_scoring.report_vendor_scoring</field>
+        <field name="print_report_name">'Evaluasi_Pemasok_%s' % object.name.replace(' ', '_')</field>
+        <field name="binding_model_id" ref="model_scoring_period"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

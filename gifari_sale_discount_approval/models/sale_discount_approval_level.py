@@ -29,7 +29,6 @@ class SaleDiscountApprovalLevel(models.Model):
     name = fields.Char(
         string='Level Name',
         required=True,
-        help="e.g. 'Sales Supervisor', 'Sales Manager', 'Director'",
     )
     active = fields.Boolean(default=True)
 
@@ -38,12 +37,10 @@ class SaleDiscountApprovalLevel(models.Model):
     min_discount = fields.Float(
         string='Min Discount (%)',
         required=True,
-        help="Minimum discount percentage that triggers this level.",
     )
     max_discount = fields.Float(
         string='Max Discount (%)',
-        help="Maximum discount this level can approve. "
-             "Leave 0 for unlimited (final level).",
+        help="Leave 0 for unlimited (final level).",
     )
 
     # ── Approver Configuration ───────────────────────────
@@ -54,7 +51,6 @@ class SaleDiscountApprovalLevel(models.Model):
         'level_id', 'user_id',
         string='Approvers',
         required=True,
-        help="Users who can approve at this level.",
     )
     approval_mode = fields.Selection(
         [
@@ -64,6 +60,35 @@ class SaleDiscountApprovalLevel(models.Model):
         string='Approval Mode',
         default='any_one',
         required=True,
+    )
+
+    # ── NEW: SLA & Delegation ────────────────────────────
+
+    sla_hours = fields.Float(
+        string='SLA (Hours)',
+        default=24.0,
+        help="Batas waktu approval. Setelah melewati batas ini, "
+             "sistem akan mengirim notifikasi eskalasi ke level berikutnya "
+             "atau ke manager. Set 0 untuk non-aktif SLA.",
+    )
+    escalate_to_ids = fields.Many2many(
+        'res.users',
+        'sale_discount_level_escalate_user_rel',
+        'level_id', 'user_id',
+        string='Escalation Recipients',
+        help="User yang diberitahu jika SLA terlewat. "
+             "Biasanya atasan dari approver level ini.",
+    )
+    can_delegate = fields.Boolean(
+        string='Allow Delegation',
+        default=True,
+        help="Jika aktif, approver di level ini dapat "
+             "mendelegasikan approval ke user lain.",
+    )
+    send_email_notification = fields.Boolean(
+        string='Send Email Notification',
+        default=True,
+        help="Kirim email ke approver selain in-app activity.",
     )
 
     # ── Constraints ──────────────────────────────────────
@@ -77,10 +102,8 @@ class SaleDiscountApprovalLevel(models.Model):
                 )
             if record.max_discount and record.max_discount < record.min_discount:
                 raise ValidationError(
-                    _("Max Discount (%(max)s%%) must be greater than or equal to "
-                      "Min Discount (%(min)s%%).",
-                      max=record.max_discount,
-                      min=record.min_discount)
+                    _("Max Discount (%(max)s%%) must be >= Min Discount (%(min)s%%).",
+                      max=record.max_discount, min=record.min_discount)
                 )
 
     @api.constrains('approver_ids')
@@ -92,24 +115,34 @@ class SaleDiscountApprovalLevel(models.Model):
                       name=record.name)
                 )
 
+    @api.constrains('sla_hours')
+    def _check_sla_hours(self):
+        for record in self:
+            if record.sla_hours < 0:
+                raise ValidationError(_("SLA hours cannot be negative."))
+
     # ── Automatic Security Group Granting ────────────────
 
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        group_manager = self.env.ref('gifari_sale_discount_approval.group_sale_approval_manager', raise_if_not_found=False)
-        if group_manager:
-            for record in records:
-                if record.approver_ids:
-                    group_manager.sudo().write({'user_ids': [(4, user.id) for user in record.approver_ids]})
+        self._sync_approver_group(records)
         return records
 
     def write(self, vals):
         res = super().write(vals)
         if 'approver_ids' in vals:
-            group_manager = self.env.ref('gifari_sale_discount_approval.group_sale_approval_manager', raise_if_not_found=False)
-            if group_manager:
-                for record in self:
-                    if record.approver_ids:
-                        group_manager.sudo().write({'user_ids': [(4, user.id) for user in record.approver_ids]})
+            self._sync_approver_group(self)
         return res
+
+    def _sync_approver_group(self, records):
+        group_manager = self.env.ref(
+            'gifari_sale_discount_approval.group_sale_approval_manager',
+            raise_if_not_found=False,
+        )
+        if group_manager:
+            for record in records:
+                if record.approver_ids:
+                    group_manager.sudo().write(
+                        {'user_ids': [(4, u.id) for u in record.approver_ids]}
+                    )

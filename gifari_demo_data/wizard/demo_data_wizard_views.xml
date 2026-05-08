@@ -8,14 +8,39 @@
             <form string="Generate Demo Data">
                 <sheet>
                     <div class="alert alert-warning" role="alert">
-                        <strong>Perhatian:</strong> Aksi ini akan men-generate data transaksi dummy (SO, PO, Invoices, Stock Moves) beserta log approvalnya. Disarankan hanya digunakan pada database testing/demo.
+                        <strong>⚠️ Perhatian:</strong> Aksi ini akan men-generate data transaksi dummy
+                        (SO, PO, Invoices, Stock Moves, Approval Logs, SPK Scores).
+                        <br/>Disarankan hanya digunakan pada <b>database testing/demo</b>.
                     </div>
                     <group>
-                        <field name="month_count" required="1"/>
+                        <group string="Konfigurasi Umum">
+                            <field name="month_count" required="1"/>
+                        </group>
+                        <group string="Data yang Di-generate">
+                            <field name="generate_so"/>
+                            <field name="generate_po"/>
+                            <field name="generate_spk_scores"/>
+                        </group>
                     </group>
+                    <group string="Skenario Khusus">
+                        <field name="generate_delegation_samples"/>
+                        <field name="generate_sla_breach_samples"/>
+                    </group>
+                    <div class="alert alert-info mt-3" role="alert">
+                        <b>ℹ️ Apa saja yang akan dibuat?</b>
+                        <ul class="mb-0 mt-1">
+                            <li>30-60 Sales Order per bulan (berbagai level diskon)</li>
+                            <li>15-30 Purchase Order per bulan (build stock)</li>
+                            <li>Approval logs: submit, approve, reject, counter-offer</li>
+                            <li>Delegasi &amp; SLA breach samples (jika dicentang)</li>
+                            <li>SPK-SAW product scores otomatis dihitung</li>
+                            <li>Stock movements, deliveries, backdate timestamps</li>
+                        </ul>
+                    </div>
                 </sheet>
                 <footer>
-                    <button name="action_generate_data" type="object" string="Generate Data" class="btn-primary" icon="fa-cogs"/>
+                    <button name="action_generate_data" type="object"
+                            string="🚀 Generate Demo Data" class="btn-primary" icon="fa-cogs"/>
                     <button special="cancel" string="Batal" class="btn-secondary"/>
                 </footer>
             </form>
@@ -23,17 +48,25 @@
     </record>
 
     <record id="action_gifari_demo_data_wizard" model="ir.actions.act_window">
-        <field name="name">Generate Indopora Demo Data</field>
+        <field name="name">Generate Demo Data (PT Indopora)</field>
         <field name="res_model">gifari.demo.data.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
 
-    <!-- Menu Item di dalam Settings -> Technical (atau General Settings) -->
-    <menuitem id="menu_gifari_demo_data" 
-              name="Generate Demo Data (PT Indopora)" 
-              parent="base.menu_administration" 
-              action="action_gifari_demo_data_wizard" 
+    <!-- Menu di Settings -->
+    <menuitem id="menu_gifari_demo_data"
+              name="Generate Demo Data (PT Indopora)"
+              parent="base.menu_administration"
+              action="action_gifari_demo_data_wizard"
               sequence="100"/>
+
+    <!-- Menu di Sales -->
+    <menuitem id="menu_gifari_demo_data_sales"
+              name="🧪 Load Demo Data"
+              parent="sale.sale_menu_root"
+              action="action_gifari_demo_data_wizard"
+              sequence="999"
+              groups="base.group_system"/>
 
 </odoo>

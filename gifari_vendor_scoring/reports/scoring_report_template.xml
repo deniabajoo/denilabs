@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- QWeb Report Template: Laporan Evaluasi Pemasok -->
+    <!-- ============================================================ -->
+    <template id="report_vendor_scoring">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="period">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Header Laporan -->
+                        <div class="text-center mb-4">
+                            <h2><strong>LAPORAN EVALUASI PEMASOK</strong></h2>
+                            <h4>Metode Simple Additive Weighting (SAW)</h4>
+                        </div>
+
+                        <!-- Informasi Periode -->
+                        <table class="table table-sm table-bordered mb-4" style="width: 50%;">
+                            <tr>
+                                <td style="width: 40%;"><strong>Periode</strong></td>
+                                <td><t t-out="period.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tanggal</strong></td>
+                                <td>
+                                    <t t-out="period.date_from" t-options='{"widget": "date"}'/> s/d
+                                    <t t-out="period.date_to" t-options='{"widget": "date"}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Evaluator</strong></td>
+                                <td><t t-out="period.evaluator_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Validator</strong></td>
+                                <td><t t-out="period.validator_id.name or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status</strong></td>
+                                <td><t t-out="period.state"/></td>
+                            </tr>
+                        </table>
+
+                        <!-- ============================================ -->
+                        <!-- Bagian 1: Kriteria Evaluasi -->
+                        <!-- ============================================ -->
+                        <h5 class="mt-4 mb-2"><strong>1. Kriteria Evaluasi &amp; Bobot</strong></h5>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th style="width: 10%;">Kode</th>
+                                    <th style="width: 40%;">Nama Kriteria</th>
+                                    <th style="width: 20%;">Tipe</th>
+                                    <th style="width: 15%;">Bobot (%)</th>
+                                    <th style="width: 15%;">Bobot (Desimal)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                    <tr>
+                                        <td><t t-out="criterion.code"/></td>
+                                        <td><t t-out="criterion.name"/></td>
+                                        <td>
+                                            <span t-if="criterion.criterion_type == 'benefit'"
+                                                  class="badge bg-success">Benefit</span>
+                                            <span t-else=""
+                                                  class="badge bg-danger">Cost</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-out="'%.1f' % criterion.weight"/>%
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-out="'%.4f' % criterion.weight_decimal"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary">
+                                    <td colspan="3"><strong>Total Bobot</strong></td>
+                                    <td class="text-end">
+                                        <strong><t t-out="'%.1f' % period.total_weight"/>%</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong><t t-out="'%.4f' % (period.total_weight / 100.0)"/></strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- ============================================ -->
+                        <!-- Bagian 2: Matriks Keputusan (Skor Mentah) -->
+                        <!-- ============================================ -->
+                        <h5 class="mt-4 mb-2"><strong>2. Matriks Keputusan (Skor Mentah)</strong></h5>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>Pemasok</th>
+                                    <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                        <th class="text-center">
+                                            <t t-out="criterion.code"/>
+                                        </th>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
+                                    <tr>
+                                        <td><t t-out="vendor_score.partner_id.name"/></td>
+                                        <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.id)"/>
+                                            <td class="text-center">
+                                                <t t-out="'%.2f' % score_line.raw_score if score_line else '-'"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- ============================================ -->
+                        <!-- Bagian 3: Matriks Normalisasi -->
+                        <!-- ============================================ -->
+                        <h5 class="mt-4 mb-2"><strong>3. Matriks Normalisasi (rᵢⱼ)</strong></h5>
+                        <p class="small text-muted">
+                            Benefit: rᵢⱼ = xᵢⱼ / max(xⱼ) &amp;nbsp;|&amp;nbsp;
+                            Cost: rᵢⱼ = min(xⱼ) / xᵢⱼ
+                        </p>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>Pemasok</th>
+                                    <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                        <th class="text-center">
+                                            <t t-out="criterion.code"/>
+                                        </th>
+                                    </t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
+                                    <tr>
+                                        <td><t t-out="vendor_score.partner_id.name"/></td>
+                                        <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.id)"/>
+                                            <td class="text-center">
+                                                <t t-out="'%.4f' % score_line.normalized_score if score_line else '-'"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- ============================================ -->
+                        <!-- Bagian 4: Hasil Perangkingan -->
+                        <!-- ============================================ -->
+                        <h5 class="mt-4 mb-2"><strong>4. Hasil Perangkingan</strong></h5>
+                        <p class="small text-muted">
+                            Vᵢ = Σ(wⱼ × rᵢⱼ) — Semakin besar nilai Vᵢ, semakin tinggi peringkat.
+                        </p>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th style="width: 10%;">Rank</th>
+                                    <th style="width: 50%;">Pemasok</th>
+                                    <th style="width: 20%;">Skor Akhir (Vᵢ)</th>
+                                    <th style="width: 20%;">Rekomendasi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
+                                    <tr t-att-class="'table-success fw-bold' if vendor_score.is_recommended else ''">
+                                        <td class="text-center">
+                                            <t t-out="vendor_score.rank"/>
+                                        </td>
+                                        <td>
+                                            <t t-out="vendor_score.partner_id.name"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-out="'%.4f' % vendor_score.final_score"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-if="vendor_score.is_recommended"
+                                                  class="badge bg-success">★ Terbaik</span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- ============================================ -->
+                        <!-- Bagian 5: Kesimpulan -->
+                        <!-- ============================================ -->
+                        <t t-set="best_vendor" t-value="period.vendor_score_ids.filtered(lambda vs: vs.is_recommended)"/>
+                        <div class="mt-4 p-3 border rounded bg-light" t-if="best_vendor">
+                            <h5><strong>Kesimpulan</strong></h5>
+                            <p>
+                                Berdasarkan hasil perhitungan metode Simple Additive Weighting (SAW),
+                                pemasok dengan nilai preferensi tertinggi adalah
+                                <strong><t t-out="best_vendor.partner_id.name"/></strong>
+                                dengan skor akhir
+                                <strong><t t-out="'%.4f' % best_vendor.final_score"/></strong>.
+                                Pemasok ini direkomendasikan sebagai pilihan utama untuk periode evaluasi
+                                <t t-out="period.name"/>.
+                            </p>
+                        </div>
+
+                        <!-- ============================================ -->
+                        <!-- Tanda Tangan -->
+                        <!-- ============================================ -->
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <p>Evaluator,</p>
+                                <br/><br/><br/>
+                                <p><strong><t t-out="period.evaluator_id.name"/></strong></p>
+                            </div>
+                            <div class="col-6 text-center">
+                                <p>Validator,</p>
+                                <br/><br/><br/>
+                                <p><strong><t t-out="period.validator_id.name or '________________'"/></strong></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gifari Demo Data — PT Indopora',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'author': 'Ikhwanudin Gifari — PT Indopora',
     'website': 'https://www.indopora.co.id',
     'category': 'Hidden/Tools',
-    'summary': 'Generates 6-month realistic demo data for PT Indopora approval system',
+    'summary': 'Generates 6-month demo data for approval + SPK-SAW discount recommendation',
     'description': """
-        Demo data generator for the PT Indopora Approval System.
+        Demo data generator v2.0 untuk PT Indopora.
 
         Creates:
+        - Company, users, customers, vendors
         - 50+ construction products with IDR pricing
-        - 20+ customers and 15+ vendors
-        - 3-level approval configurations (Sale + Purchase)
-        - 6 months of SO and PO transactions
-        - Varied approval statuses (approved, pending, rejected)
-        - Stock movements, deliveries, and invoices
-        - Realistic approval audit logs
-
-        IMPORTANT: Only loads when Odoo is started with demo data enabled.
+        - 3-level discount approval (with SLA, delegation, escalation)
+        - SAW criteria + product scoring
+        - 6 months of SO transactions with varied approval states
+        - Stock movements → aging & overstocking scenarios
+        - SPK-SAW scores otomatis dihitung setelah generation
     """,
     'depends': [
         'gifari_sale_discount_approval',
+        'gifari_product_discount_recommendation',
         'gifari_purchase_approval',
         'gifari_approval_dashboard',
         'l10n_id',
@@ -32,7 +31,6 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        # Master data — always loaded
         'data/res_company.xml',
         'data/res_partner.xml',
         'data/res_users.xml',
@@ -41,10 +39,7 @@
         'data/approval_levels.xml',
         'wizard/demo_data_wizard_views.xml',
     ],
-    'demo': [
-        # Transaction data — demo mode only
-        # Handled by post_init_hook instead of XML
-    ],
+    'demo': [],
     'post_init_hook': 'post_init_hook',
     'installable': True,
     'application': False,

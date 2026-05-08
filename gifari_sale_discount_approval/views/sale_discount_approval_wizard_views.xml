@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ════════════════════════════════════════════════════
-         Approval Wizard — Form View
-         ════════════════════════════════════════════════════ -->
-
+    <!-- Approval Wizard — Form View (with Delegate) -->
     <record id="view_sale_discount_approval_wizard_form" model="ir.ui.view">
         <field name="name">sale.discount.approval.wizard.form</field>
         <field name="model">sale.discount.approval.wizard</field>
         <field name="arch" type="xml">
             <form string="Discount Approval">
                 <group>
-                    <!-- Order Info (read-only) -->
                     <group string="Order Information">
                         <field name="order_id" readonly="1"/>
                         <field name="order_partner"/>
@@ -19,15 +15,14 @@
                         <field name="currency_id" invisible="1"/>
                         <field name="level_id" readonly="1"/>
                         <field name="current_discount"/>
+                        <field name="can_delegate" invisible="1"/>
                     </group>
-
-                    <!-- Action Selection -->
                     <group string="Your Decision">
                         <field name="action" widget="radio"/>
                     </group>
                 </group>
 
-                <!-- Counter-Offer Section (visible only on approve) -->
+                <!-- Counter-Offer (approve only) -->
                 <group invisible="action != 'approve'">
                     <group string="Counter-Offer (Optional)">
                         <field name="use_counter_offer"/>
@@ -37,25 +32,33 @@
                     </group>
                 </group>
 
-                <!-- Rejection Reason (visible only on reject) -->
+                <!-- Rejection Reason -->
                 <group invisible="action != 'reject'">
                     <group string="Rejection Details">
                         <field name="rejected_reason"
-                               placeholder="Please provide a clear reason for rejection... (Required)"
+                               placeholder="Harap isi alasan penolakan... (Wajib)"
                                required="action == 'reject'"/>
+                    </group>
+                </group>
+
+                <!-- Delegation -->
+                <group invisible="action != 'delegate'">
+                    <group string="Delegation Details">
+                        <field name="delegate_user_id"
+                               required="action == 'delegate'"/>
+                        <field name="delegate_notes"
+                               placeholder="Catatan delegasi (opsional)..."/>
                     </group>
                 </group>
 
                 <!-- Notes -->
                 <group>
-                    <field name="notes" placeholder="Additional notes (optional)..."/>
+                    <field name="notes" placeholder="Catatan tambahan (opsional)..."/>
                 </group>
 
                 <footer>
-                    <button name="action_confirm_wizard"
-                            string="Confirm"
-                            type="object"
-                            class="btn-primary"/>
+                    <button name="action_confirm_wizard" string="Confirm"
+                            type="object" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

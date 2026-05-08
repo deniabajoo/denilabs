@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Criterion: List View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_criterion_list" model="ir.ui.view">
+        <field name="name">scoring.criterion.list</field>
+        <field name="model">scoring.criterion</field>
+        <field name="arch" type="xml">
+            <list string="Kriteria Evaluasi" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="criterion_type"
+                       decoration-success="criterion_type == 'benefit'"
+                       decoration-danger="criterion_type == 'cost'"
+                       widget="badge"/>
+                <field name="weight" widget="float" sum="Total Bobot"/>
+                <field name="description" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+                <field name="company_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Criterion: Form View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_criterion_form" model="ir.ui.view">
+        <field name="name">scoring.criterion.form</field>
+        <field name="model">scoring.criterion</field>
+        <field name="arch" type="xml">
+            <form string="Kriteria Evaluasi">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Nama Kriteria..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Identifikasi">
+                            <field name="code" placeholder="C1, C2, ..."/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Parameter SAW">
+                            <field name="criterion_type" widget="radio"/>
+                            <field name="weight" widget="float"/>
+                            <field name="weight_decimal" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Panduan Penilaian">
+                        <field name="description" nolabel="1"
+                               placeholder="Jelaskan cara menilai kriteria ini pada skala 1-10..."/>
+                    </group>
+                    <field name="company_id" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Criterion: Search View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_criterion_search" model="ir.ui.view">
+        <field name="name">scoring.criterion.search</field>
+        <field name="model">scoring.criterion</field>
+        <field name="arch" type="xml">
+            <search string="Cari Kriteria">
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Benefit" name="filter_benefit"
+                        domain="[('criterion_type', '=', 'benefit')]"/>
+                <filter string="Cost" name="filter_cost"
+                        domain="[('criterion_type', '=', 'cost')]"/>
+                <separator/>
+                <filter string="Diarsipkan" name="filter_archived"
+                        domain="[('active', '=', False)]"/>
+                <group expand="0" string="Kelompokkan">
+                    <filter string="Tipe" name="group_type"
+                            context="{'group_by': 'criterion_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Criterion: Action -->
+    <!-- ============================================================ -->
+    <record id="action_scoring_criterion" model="ir.actions.act_window">
+        <field name="name">Kriteria Evaluasi</field>
+        <field name="res_model">scoring.criterion</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat kriteria evaluasi pertama Anda!
+            </p>
+            <p>
+                Kriteria digunakan untuk menilai pemasok pada setiap periode evaluasi.
+                Setiap kriteria memiliki tipe (Benefit atau Cost) dan bobot kepentingan.
+            </p>
+        </field>
+    </record>
+
+</odoo>

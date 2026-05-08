@@ -2,16 +2,13 @@
 <odoo>
 <data noupdate="1">
 
-    <!-- ══════════════════════════════════════════════════════
-         SALE DISCOUNT APPROVAL LEVELS — 3 Level Variatif
-         ══════════════════════════════════════════════════════ -->
-
     <!-- Enable Sale Discount Approval on main company -->
     <function model="res.company" name="write">
         <value model="res.company" search="[('id','=',1)]"/>
         <value eval="{'sale_disc_approval_enabled': True}"/>
     </function>
 
+    <!-- L1: Sales Supervisor — SLA 24 jam -->
     <record id="sale_level_1" model="sale.discount.approval.level">
         <field name="name">Sales Supervisor (L1)</field>
         <field name="sequence">10</field>
@@ -19,7 +16,13 @@
         <field name="max_discount">20.0</field>
         <field name="approval_mode">any_one</field>
         <field name="approver_ids" eval="[(6, 0, [ref('demo_sales_manager')])]"/>
+        <field name="sla_hours">24.0</field>
+        <field name="can_delegate">True</field>
+        <field name="send_email_notification">True</field>
+        <field name="escalate_to_ids" eval="[(6, 0, [ref('demo_sales_director')])]"/>
     </record>
+
+    <!-- L2: Sales Manager — SLA 48 jam -->
     <record id="sale_level_2" model="sale.discount.approval.level">
         <field name="name">Sales Manager (L2)</field>
         <field name="sequence">20</field>
@@ -27,7 +30,13 @@
         <field name="max_discount">35.0</field>
         <field name="approval_mode">any_one</field>
         <field name="approver_ids" eval="[(6, 0, [ref('demo_sales_director')])]"/>
+        <field name="sla_hours">48.0</field>
+        <field name="can_delegate">True</field>
+        <field name="send_email_notification">True</field>
+        <field name="escalate_to_ids" eval="[(6, 0, [ref('demo_finance_director')])]"/>
     </record>
+
+    <!-- L3: Director Board — SLA 72 jam, all must approve -->
     <record id="sale_level_3" model="sale.discount.approval.level">
         <field name="name">Director Board (L3)</field>
         <field name="sequence">30</field>
@@ -35,13 +44,14 @@
         <field name="max_discount">0</field>
         <field name="approval_mode">all_must</field>
         <field name="approver_ids" eval="[(6, 0, [ref('demo_sales_manager'), ref('demo_sales_director')])]"/>
+        <field name="sla_hours">72.0</field>
+        <field name="can_delegate">False</field>
+        <field name="send_email_notification">True</field>
+        <field name="escalate_to_ids" eval="[(6, 0, [ref('demo_finance_director')])]"/>
     </record>
 
-    <!-- ══════════════════════════════════════════════════════
-         PURCHASE APPROVAL LEVELS — 3 Level Variatif
-         ══════════════════════════════════════════════════════ -->
+    <!-- ═══ PURCHASE APPROVAL LEVELS ═══ -->
 
-    <!-- Enable Purchase Approval on main company -->
     <function model="res.company" name="write">
         <value model="res.company" search="[('id','=',1)]"/>
         <value eval="{'purchase_approval_enabled': True}"/>

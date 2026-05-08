@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ════════════════════════════════════════════════════
-         Approval Level — Tree View
-         ════════════════════════════════════════════════════ -->
-
+    <!-- Approval Level — Tree View -->
     <record id="view_sale_discount_approval_level_tree" model="ir.ui.view">
         <field name="name">sale.discount.approval.level.tree</field>
         <field name="model">sale.discount.approval.level</field>
@@ -16,15 +13,14 @@
                 <field name="max_discount"/>
                 <field name="approver_ids" widget="many2many_tags"/>
                 <field name="approval_mode"/>
+                <field name="sla_hours" widget="float_time" optional="show"/>
+                <field name="can_delegate" optional="hide"/>
                 <field name="company_id" column_invisible="True"/>
             </list>
         </field>
     </record>
 
-    <!-- ════════════════════════════════════════════════════
-         Approval Level — Form View
-         ════════════════════════════════════════════════════ -->
-
+    <!-- Approval Level — Form View -->
     <record id="view_sale_discount_approval_level_form" model="ir.ui.view">
         <field name="name">sale.discount.approval.level.form</field>
         <field name="model">sale.discount.approval.level</field>
@@ -52,15 +48,20 @@
                             </list>
                         </field>
                     </group>
+                    <group string="SLA &amp; Notifikasi">
+                        <field name="sla_hours" widget="float_time"
+                               help="Contoh: 24.0 = 24 jam, 8.5 = 8 jam 30 menit"/>
+                        <field name="send_email_notification"/>
+                        <field name="can_delegate"/>
+                        <field name="escalate_to_ids" widget="many2many_tags"
+                               invisible="sla_hours == 0"/>
+                    </group>
                 </sheet>
             </form>
         </field>
     </record>
 
-    <!-- ════════════════════════════════════════════════════
-         Approval Level — Action
-         ════════════════════════════════════════════════════ -->
-
+    <!-- Approval Level — Action -->
     <record id="action_sale_discount_approval_level" model="ir.actions.act_window">
         <field name="name">Discount Approval Levels</field>
         <field name="res_model">sale.discount.approval.level</field>

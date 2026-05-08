@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Settings: Vendor Scoring Configuration -->
+    <!-- ============================================================ -->
+    <record id="view_res_config_settings_vendor_scoring" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.vendor.scoring</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="purchase.res_config_settings_view_form_purchase"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@string='Purchase']" position="inside">
+                <block title="Vendor Scoring (SAW)" name="vendor_scoring_settings">
+                    <setting id="vendor_scoring_evaluator_setting"
+                             string="Evaluator (Input Skor)"
+                             help="Pilih user yang berhak melakukan input skor pemasok pada periode evaluasi.">
+                        <div class="content-group">
+                            <div class="mt16">
+                                <field name="vendor_scoring_evaluator_ids"
+                                       widget="many2many_tags"
+                                       options="{'color_field': 'color'}"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="vendor_scoring_validator_setting"
+                             string="Validator (Review Hasil)"
+                             help="Pilih user yang berhak memvalidasi hasil evaluasi dan menyetujui ranking pemasok.">
+                        <div class="content-group">
+                            <div class="mt16">
+                                <field name="vendor_scoring_validator_ids"
+                                       widget="many2many_tags"
+                                       options="{'color_field': 'color'}"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="vendor_scoring_configurator_setting"
+                             string="Configurator (Kelola Kriteria)"
+                             help="Pilih user yang berhak mengkonfigurasi kriteria evaluasi, bobot, dan pengaturan modul.">
+                        <div class="content-group">
+                            <div class="mt16">
+                                <field name="vendor_scoring_configurator_ids"
+                                       widget="many2many_tags"
+                                       options="{'color_field': 'color'}"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

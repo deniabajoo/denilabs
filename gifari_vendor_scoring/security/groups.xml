@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Privilege Definition (Odoo 19 pattern) -->
+    <!-- ============================================================ -->
+    <record id="privilege_vendor_scoring" model="res.groups.privilege">
+        <field name="name">Vendor Scoring</field>
+        <field name="category_id" ref="base.module_category_purchase_management"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Security Groups -->
+    <!-- ============================================================ -->
+
+    <!-- Evaluator: Input skor pemasok -->
+    <record id="group_vendor_scoring_evaluator" model="res.groups">
+        <field name="name">Evaluator (Input Skor)</field>
+        <field name="privilege_id" ref="privilege_vendor_scoring"/>
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="comment">User yang berhak melakukan input skor pemasok pada periode evaluasi.</field>
+    </record>
+
+    <!-- Validator: Validasi hasil evaluasi -->
+    <record id="group_vendor_scoring_validator" model="res.groups">
+        <field name="name">Validator (Review Hasil)</field>
+        <field name="privilege_id" ref="privilege_vendor_scoring"/>
+        <field name="implied_ids" eval="[(4, ref('group_vendor_scoring_evaluator'))]"/>
+        <field name="comment">User yang berhak memvalidasi hasil evaluasi pemasok dan menyetujui ranking.</field>
+    </record>
+
+    <!-- Configurator: Kelola kriteria & bobot -->
+    <record id="group_vendor_scoring_configurator" model="res.groups">
+        <field name="name">Configurator (Kelola Kriteria)</field>
+        <field name="privilege_id" ref="privilege_vendor_scoring"/>
+        <field name="implied_ids" eval="[(4, ref('group_vendor_scoring_validator'))]"/>
+        <field name="comment">User yang berhak mengkonfigurasi kriteria evaluasi, bobot, dan pengaturan modul.</field>
+    </record>
+
+</odoo>

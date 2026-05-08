@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!-- 5 Kriteria Evaluasi Default -->
+        <!-- Berdasarkan kajian literatur: Rusvinasari (2024), -->
+        <!-- Mar'atullatifah & Sari (2023), Hasibuan et al. (2023) -->
+        <!-- ============================================================ -->
+
+        <record id="criterion_quality" model="scoring.criterion">
+            <field name="name">Kualitas Produk</field>
+            <field name="code">C1</field>
+            <field name="criterion_type">benefit</field>
+            <field name="weight">30.0</field>
+            <field name="sequence">10</field>
+            <field name="description">Penilaian kualitas produk yang dikirimkan oleh pemasok.
+Skala 1-10:
+1-2: Sangat buruk, banyak cacat/defect
+3-4: Buruk, sering tidak sesuai spesifikasi
+5-6: Cukup, sesekali ada ketidaksesuaian minor
+7-8: Baik, konsisten sesuai spesifikasi
+9-10: Sangat baik, kualitas premium konsisten</field>
+        </record>
+
+        <record id="criterion_price" model="scoring.criterion">
+            <field name="name">Harga</field>
+            <field name="code">C2</field>
+            <field name="criterion_type">cost</field>
+            <field name="weight">25.0</field>
+            <field name="sequence">20</field>
+            <field name="description">Penilaian daya saing harga yang ditawarkan pemasok.
+Skala 1-10 (semakin rendah skor = harga semakin mahal):
+1-2: Harga sangat mahal dibanding kompetitor
+3-4: Harga di atas rata-rata pasar
+5-6: Harga kompetitif, sesuai rata-rata pasar
+7-8: Harga cukup murah, di bawah rata-rata
+9-10: Harga sangat murah, paling kompetitif</field>
+        </record>
+
+        <record id="criterion_delivery" model="scoring.criterion">
+            <field name="name">Ketepatan Waktu Pengiriman</field>
+            <field name="code">C3</field>
+            <field name="criterion_type">benefit</field>
+            <field name="weight">20.0</field>
+            <field name="sequence">30</field>
+            <field name="description">Penilaian ketepatan waktu pengiriman (on-time delivery rate).
+Skala 1-10:
+1-2: Selalu terlambat lebih dari 1 minggu
+3-4: Sering terlambat 3-7 hari
+5-6: Kadang terlambat 1-3 hari
+7-8: Hampir selalu tepat waktu
+9-10: Selalu tepat waktu, bahkan kadang lebih cepat</field>
+        </record>
+
+        <record id="criterion_capacity" model="scoring.criterion">
+            <field name="name">Kapasitas Produksi</field>
+            <field name="code">C4</field>
+            <field name="criterion_type">benefit</field>
+            <field name="weight">15.0</field>
+            <field name="sequence">40</field>
+            <field name="description">Penilaian kemampuan pemasok memenuhi volume pesanan.
+Skala 1-10:
+1-2: Tidak mampu memenuhi kebutuhan minimum
+3-4: Sering kekurangan stok, kapasitas terbatas
+5-6: Cukup mampu memenuhi pesanan standar
+7-8: Mampu memenuhi pesanan besar dengan baik
+9-10: Kapasitas sangat besar, selalu tersedia</field>
+        </record>
+
+        <record id="criterion_responsiveness" model="scoring.criterion">
+            <field name="name">Responsivitas Layanan</field>
+            <field name="code">C5</field>
+            <field name="criterion_type">benefit</field>
+            <field name="weight">10.0</field>
+            <field name="sequence">50</field>
+            <field name="description">Penilaian kecepatan respons dan penanganan keluhan.
+Skala 1-10:
+1-2: Tidak responsif, sulit dihubungi
+3-4: Lambat merespons, lebih dari 3 hari kerja
+5-6: Merespons dalam 1-3 hari kerja
+7-8: Responsif, merespons dalam 24 jam
+9-10: Sangat responsif, merespons dalam hitungan jam</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_spk_root" name="SPK Diskon"
+              parent="sale.sale_menu_root" sequence="50"
+              groups="gifari_product_discount_recommendation.group_spk_user"/>
+
+    <menuitem id="menu_spk_recommendations" name="Rekomendasi Produk"
+              parent="menu_spk_root" action="action_spk_saw_product_score" sequence="10"/>
+
+    <menuitem id="menu_spk_criteria" name="Kriteria SAW"
+              parent="menu_spk_root" action="action_spk_saw_criterion" sequence="20"
+              groups="gifari_product_discount_recommendation.group_spk_manager"/>
+
+    <menuitem id="menu_spk_run_scoring" name="Hitung Ulang Scoring"
+              parent="menu_spk_root" action="action_spk_run_scoring_wizard" sequence="30"
+              groups="gifari_product_discount_recommendation.group_spk_manager"/>
+
+</odoo>
