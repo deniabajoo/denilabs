@@ -31,7 +31,7 @@ class ScoringCriterion(models.Model):
     )
     description = fields.Text(
         string="Panduan Penilaian",
-        help="Penjelasan cara menilai kriteria ini (skala 1-10).",
+        help="Penjelasan cara menilai kriteria ini (skala 1-100).",
     )
     sequence = fields.Integer(
         string="Urutan",
@@ -54,12 +54,10 @@ class ScoringCriterion(models.Model):
         help="Bobot dalam desimal (0-1) untuk kalkulasi SAW.",
     )
 
-    _constraints = [
-        models.Constraint(
-            'unique(code, company_id)',
-            'Kode kriteria harus unik per perusahaan.',
-        ),
-    ]
+    _unique_code_company = models.Constraint(
+        'UNIQUE(code, company_id)',
+        'Kode kriteria harus unik per perusahaan.',
+    )
 
     @api.depends('weight')
     def _compute_weight_decimal(self):

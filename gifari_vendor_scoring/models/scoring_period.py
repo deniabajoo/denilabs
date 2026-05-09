@@ -55,6 +55,15 @@ class ScoringPeriod(models.Model):
         string="Kriteria Evaluasi",
         help="Kriteria yang digunakan pada periode evaluasi ini.",
     )
+    partner_ids = fields.Many2many(
+        comodel_name='res.partner',
+        relation='scoring_period_partner_rel',
+        column1='period_id',
+        column2='partner_id',
+        string="Pemasok yang Dievaluasi",
+        domain=[('supplier_rank', '>', 0)],
+        help="Pilih pemasok yang akan dievaluasi pada periode ini.",
+    )
     notes = fields.Html(
         string="Catatan",
     )
@@ -77,12 +86,10 @@ class ScoringPeriod(models.Model):
         compute='_compute_total_weight',
     )
 
-    _constraints = [
-        models.Constraint(
-            'check(date_to >= date_from)',
-            'Tanggal akhir harus lebih besar atau sama dengan tanggal mulai.',
-        ),
-    ]
+    _check_date_range = models.Constraint(
+        'CHECK(date_to >= date_from)',
+        'Tanggal akhir harus lebih besar atau sama dengan tanggal mulai.',
+    )
 
     @api.depends('vendor_score_ids')
     def _compute_vendor_count(self):
@@ -104,7 +111,7 @@ class ScoringPeriod(models.Model):
                 )
 
     def action_start_scoring(self):
-        """Mulai proses penilaian: generate vendor score lines."""
+        """Mulai proses penilaian: generate vendor score lines dari partner_ids."""
         self.ensure_one()
         if not self.criterion_ids:
             raise UserError(
@@ -114,26 +121,24 @@ class ScoringPeriod(models.Model):
             raise UserError(
                 "Total bobot kriteria harus tepat 100%%. Saat ini: %.2f%%." % self.total_weight
             )
+        if not self.partner_ids:
+            raise UserError(
+                "Silakan pilih minimal satu pemasok yang akan dievaluasi."
+            )
 
-        active_vendors = self.env['res.partner'].search([
-            ('supplier_rank', '>', 0),
-            ('company_id', 'in', [self.company_id.id, False]),
-        ])
-        if not active_vendors:
-            raise UserError("Tidak ditemukan pemasok aktif di sistem.")
+        # Hapus skor vendor yang tidak ada lagi di pilihan partner_ids
+        vendors_to_remove = self.vendor_score_ids.filtered(lambda vs: vs.partner_id.id not in self.partner_ids.ids)
+        if vendors_to_remove:
+            vendors_to_remove.unlink()
 
         existing_vendor_ids = self.vendor_score_ids.mapped('partner_id').ids
         new_vendor_scores = []
 
-        for vendor in active_vendors:
+        for vendor in self.partner_ids:
             if vendor.id in existing_vendor_ids:
                 continue
-            score_lines = []
-            for criterion in self.criterion_ids:
-                score_lines.append((0, 0, {
-                    'criterion_id': criterion.id,
-                    'raw_score': 0.0,
-                }))
+            score_lines = [(0, 0, {'criterion_id': c.id, 'raw_score': 0.0})
+                           for c in self.criterion_ids]
             new_vendor_scores.append((0, 0, {
                 'partner_id': vendor.id,
                 'score_line_ids': score_lines,

@@ -6,7 +6,7 @@
     <!-- ============================================================ -->
     <record id="privilege_vendor_scoring" model="res.groups.privilege">
         <field name="name">Vendor Scoring</field>
-        <field name="category_id" ref="base.module_category_purchase_management"/>
+        <field name="category_id" ref="base.module_category_purchases"/>
     </record>
 
     <!-- ============================================================ -->

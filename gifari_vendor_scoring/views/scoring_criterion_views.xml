@@ -14,8 +14,7 @@
                 <field name="name"/>
                 <field name="criterion_type"
                        decoration-success="criterion_type == 'benefit'"
-                       decoration-danger="criterion_type == 'cost'"
-                       widget="badge"/>
+                       decoration-danger="criterion_type == 'cost'"/>
                 <field name="weight" widget="float" sum="Total Bobot"/>
                 <field name="description" optional="hide"/>
                 <field name="active" column_invisible="1"/>
@@ -53,7 +52,7 @@
                     </group>
                     <group string="Panduan Penilaian">
                         <field name="description" nolabel="1"
-                               placeholder="Jelaskan cara menilai kriteria ini pada skala 1-10..."/>
+                               placeholder="Jelaskan cara menilai kriteria ini pada skala 1-100..."/>
                     </group>
                     <field name="company_id" invisible="1"/>
                 </sheet>
@@ -78,7 +77,7 @@
                 <separator/>
                 <filter string="Diarsipkan" name="filter_archived"
                         domain="[('active', '=', False)]"/>
-                <group expand="0" string="Kelompokkan">
+                <group>
                     <filter string="Tipe" name="group_type"
                             context="{'group_by': 'criterion_type'}"/>
                 </group>

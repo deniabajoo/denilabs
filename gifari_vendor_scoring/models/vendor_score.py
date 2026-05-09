@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class VendorScore(models.Model):
@@ -47,12 +47,21 @@ class VendorScore(models.Model):
         string="Status Periode",
     )
 
-    _constraints = [
-        models.Constraint(
-            'unique(period_id, partner_id)',
-            'Pemasok hanya boleh dinilai sekali per periode evaluasi.',
-        ),
-    ]
+    _unique_period_partner = models.Constraint(
+        'UNIQUE(period_id, partner_id)',
+        'Pemasok hanya boleh dinilai sekali per periode evaluasi.',
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for record in records:
+            if record.period_id and not record.score_line_ids:
+                lines = [(0, 0, {'criterion_id': c.id, 'raw_score': 0.0})
+                         for c in record.period_id.criterion_ids]
+                if lines:
+                    record.score_line_ids = lines
+        return records
 
     def action_open_score_detail(self):
         """Buka form detail skor pemasok dalam popup."""

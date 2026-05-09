@@ -17,11 +17,12 @@ class VendorScoreLine(models.Model):
         comodel_name='scoring.criterion',
         string="Kriteria",
         required=True,
+        ondelete='cascade',
     )
     raw_score = fields.Float(
-        string="Skor Mentah (1-10)",
+        string="Skor Mentah (1-100)",
         digits=(10, 2),
-        help="Nilai penilaian mentah pada skala 1-10.",
+        help="Nilai penilaian mentah pada skala 1-100.",
     )
     normalized_score = fields.Float(
         string="Skor Normalisasi (rᵢⱼ)",
@@ -45,9 +46,20 @@ class VendorScoreLine(models.Model):
     @api.constrains('raw_score')
     def _check_raw_score_range(self):
         for line in self:
-            if line.raw_score and (line.raw_score < 1.0 or line.raw_score > 10.0):
+            if not line.raw_score:
+                continue
+            if line.criterion_type == 'cost':
+                if line.raw_score <= 0:
+                    raise ValidationError(
+                        "Skor untuk kriteria '%s' (Cost) harus lebih dari 0. "
+                        "Nilai yang dimasukkan: %.2f." % (
+                            line.criterion_id.name,
+                            line.raw_score,
+                        )
+                    )
+            elif line.raw_score < 1.0 or line.raw_score > 100.0:
                 raise ValidationError(
-                    "Skor untuk kriteria '%s' harus antara 1 dan 10. "
+                    "Skor untuk kriteria '%s' harus antara 1 dan 100. "
                     "Nilai yang dimasukkan: %.2f." % (
                         line.criterion_id.name,
                         line.raw_score,

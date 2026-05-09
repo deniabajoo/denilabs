@@ -47,7 +47,7 @@
                             type="object"
                             class="btn-primary"
                             invisible="state != 'draft'"
-                            confirm="Memulai penilaian akan mengambil semua pemasok aktif. Lanjutkan?"/>
+                            confirm="Memulai penilaian untuk pemasok yang dipilih. Lanjutkan?"/>
                     <button name="action_calculate_saw"
                             string="🔢 Hitung SAW"
                             type="object"
@@ -120,6 +120,17 @@
                         <field name="criterion_ids" nolabel="1" widget="many2many_tags"
                                options="{'color_field': 'criterion_type'}"
                                readonly="state != 'draft'"/>
+                    </group>
+
+                    <!-- Pilihan Pemasok (hanya di Draft) -->
+                    <group string="Pemasok yang Dievaluasi" invisible="state != 'draft'">
+                        <field name="partner_ids" nolabel="1">
+                            <list string="Pemasok">
+                                <field name="name"/>
+                                <field name="city" optional="show"/>
+                                <field name="phone" optional="hide"/>
+                            </list>
+                        </field>
                     </group>
 
                     <notebook>
@@ -209,7 +220,7 @@
                 <filter string="Tahun Ini" name="filter_this_year"
                         domain="[('date_from', '&gt;=', (context_today() - relativedelta(month=1, day=1)).strftime('%%Y-%%m-%%d')),
                                  ('date_from', '&lt;=', (context_today() + relativedelta(month=12, day=31)).strftime('%%Y-%%m-%%d'))]"/>
-                <group expand="0" string="Kelompokkan">
+                <group>
                     <filter string="Status" name="group_state"
                             context="{'group_by': 'state'}"/>
                     <filter string="Evaluator" name="group_evaluator"
