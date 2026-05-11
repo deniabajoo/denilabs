@@ -12,7 +12,6 @@
             <field name="name">Kualitas</field>
             <field name="code">C1</field>
             <field name="criterion_type">benefit</field>
-            <field name="weight">35.0</field>
             <field name="sequence">10</field>
             <field name="description">Penilaian kualitas produk yang dikirimkan oleh pemasok.
 Skala 1-100: Semakin tinggi skor = semakin baik</field>
@@ -22,7 +21,6 @@ Skala 1-100: Semakin tinggi skor = semakin baik</field>
             <field name="name">Harga</field>
             <field name="code">C2</field>
             <field name="criterion_type">cost</field>
-            <field name="weight">25.0</field>
             <field name="sequence">20</field>
             <field name="description">Penilaian daya saing harga yang ditawarkan pemasok.
 Semakin rendah harga = semakin baik</field>
@@ -32,7 +30,6 @@ Semakin rendah harga = semakin baik</field>
             <field name="name">Ketepatan Waktu</field>
             <field name="code">C3</field>
             <field name="criterion_type">benefit</field>
-            <field name="weight">25.0</field>
             <field name="sequence">30</field>
             <field name="description">Penilaian ketepatan waktu pengiriman (on-time delivery rate).
 Skala 1-100: Semakin tinggi skor = semakin baik</field>
@@ -42,10 +39,19 @@ Skala 1-100: Semakin tinggi skor = semakin baik</field>
             <field name="name">Layanan</field>
             <field name="code">C4</field>
             <field name="criterion_type">benefit</field>
-            <field name="weight">15.0</field>
             <field name="sequence">40</field>
             <field name="description">Penilaian kecepatan respons dan penanganan keluhan.
 Skala 1-100: Semakin tinggi skor = semakin baik</field>
+        </record>
+
+        <record id="package_default_4c" model="scoring.package">
+            <field name="name">Paket Standar (4 Kriteria)</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'criterion_id': ref('criterion_quality'), 'weight': 35.0}),
+                (0, 0, {'criterion_id': ref('criterion_price'), 'weight': 25.0}),
+                (0, 0, {'criterion_id': ref('criterion_delivery'), 'weight': 25.0}),
+                (0, 0, {'criterion_id': ref('criterion_responsiveness'), 'weight': 15.0})
+            ]"/>
         </record>
 
     </data>

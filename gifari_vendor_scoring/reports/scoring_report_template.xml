@@ -7,12 +7,25 @@
     <template id="report_vendor_scoring">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="period">
-                <t t-call="web.external_layout">
-                    <div class="page">
+                <t t-call="web.basic_layout">
+                    <div class="page position-relative">
+                        <!-- Watermark -->
+                        <div t-if="period.state == 'validated'" class="position-absolute" 
+                             style="font-size: 6rem; font-weight: bold; top: 30%; left: 15%; transform: rotate(-30deg); z-index: -1; color: rgba(40, 167, 69, 0.15);">
+                            TERVALIDASI
+                        </div>
+                        <div t-if="period.state in ['draft', 'scoring', 'calculated']" class="position-absolute" 
+                             style="font-size: 6rem; font-weight: bold; top: 30%; left: 20%; transform: rotate(-30deg); z-index: -1; color: rgba(220, 53, 69, 0.15);">
+                            DRAFT
+                        </div>
 
                         <!-- Header Laporan -->
                         <div class="text-center mb-4">
-                            <h2><strong>LAPORAN EVALUASI PEMASOK</strong></h2>
+                            <h2>
+                                <strong>LAPORAN EVALUASI PEMASOK</strong>
+                                <span t-if="period.state == 'validated'" style="background-color: #198754; color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px; vertical-align: middle; margin-left: 10px;">✓ Tervalidasi</span>
+                                <span t-if="period.state != 'validated'" style="background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 12px; font-size: 14px; vertical-align: middle; margin-left: 10px;">Draft</span>
+                            </h2>
                             <h4>Metode Simple Additive Weighting (SAW)</h4>
                         </div>
 
@@ -39,7 +52,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Status</strong></td>
-                                <td><t t-out="period.state"/></td>
+                                <td><t t-out="dict(period.fields_get(allfields=['state'])['state']['selection'])[period.state]"/></td>
                             </tr>
                         </table>
 
@@ -47,43 +60,43 @@
                         <!-- Bagian 1: Kriteria Evaluasi -->
                         <!-- ============================================ -->
                         <h5 class="mt-4 mb-2"><strong>1. Kriteria Evaluasi &amp; Bobot</strong></h5>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered table-striped" style="vertical-align: middle;">
                             <thead>
-                                <tr class="table-dark">
-                                    <th style="width: 10%;">Kode</th>
-                                    <th style="width: 40%;">Nama Kriteria</th>
-                                    <th style="width: 20%;">Tipe</th>
-                                    <th style="width: 15%;">Bobot (%)</th>
-                                    <th style="width: 15%;">Bobot (Desimal)</th>
+                                <tr style="background-color: #343a40;">
+                                    <th style="width: 10%; text-align: center; color: white;">Kode</th>
+                                    <th style="width: 40%; color: white;">Nama Kriteria</th>
+                                    <th style="width: 20%; text-align: center; color: white;">Tipe</th>
+                                    <th style="width: 15%; text-align: center; color: white;">Bobot (%)</th>
+                                    <th style="width: 15%; text-align: center; color: white;">Bobot (Desimal)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                <t t-foreach="period.period_criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
                                     <tr>
-                                        <td><t t-out="criterion.code"/></td>
-                                        <td><t t-out="criterion.name"/></td>
-                                        <td>
+                                        <td style="text-align: center;"><strong><t t-out="criterion.criterion_id.code"/></strong></td>
+                                        <td><t t-out="criterion.criterion_id.name"/></td>
+                                        <td style="text-align: center;">
                                             <span t-if="criterion.criterion_type == 'benefit'"
-                                                  class="badge bg-success">Benefit</span>
+                                                  style="background-color: #198754; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;">Benefit</span>
                                             <span t-else=""
-                                                  class="badge bg-danger">Cost</span>
+                                                  style="background-color: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;">Cost</span>
                                         </td>
-                                        <td class="text-end">
+                                        <td style="text-align: center;">
                                             <t t-out="'%.1f' % criterion.weight"/>%
                                         </td>
-                                        <td class="text-end">
+                                        <td style="text-align: center;">
                                             <t t-out="'%.4f' % criterion.weight_decimal"/>
                                         </td>
                                     </tr>
                                 </t>
                             </tbody>
                             <tfoot>
-                                <tr class="table-secondary">
+                                <tr style="background-color: #e9ecef;">
                                     <td colspan="3"><strong>Total Bobot</strong></td>
-                                    <td class="text-end">
+                                    <td style="text-align: right;">
                                         <strong><t t-out="'%.1f' % period.total_weight"/>%</strong>
                                     </td>
-                                    <td class="text-end">
+                                    <td style="text-align: right;">
                                         <strong><t t-out="'%.4f' % (period.total_weight / 100.0)"/></strong>
                                     </td>
                                 </tr>
@@ -94,13 +107,14 @@
                         <!-- Bagian 2: Matriks Keputusan (Skor Mentah) -->
                         <!-- ============================================ -->
                         <h5 class="mt-4 mb-2"><strong>2. Matriks Keputusan (Skor Mentah)</strong></h5>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered table-striped" style="vertical-align: middle;">
                             <thead>
-                                <tr class="table-dark">
-                                    <th>Pemasok</th>
-                                    <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
-                                        <th class="text-center">
-                                            <t t-out="criterion.code"/>
+                                <tr style="background-color: #343a40;">
+                                    <th style="color: white;">Pemasok</th>
+                                    <t t-foreach="period.period_criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                        <th style="text-align: center; color: white;">
+                                            <t t-out="criterion.criterion_id.code"/><br/>
+                                            <span style="font-size: 10px; font-weight: normal; color: white;">(<t t-out="criterion.criterion_type.title()"/>)</span>
                                         </th>
                                     </t>
                                 </tr>
@@ -109,9 +123,9 @@
                                 <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
                                     <tr>
                                         <td><t t-out="vendor_score.partner_id.name"/></td>
-                                        <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
-                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.id)"/>
-                                            <td class="text-center">
+                                        <t t-foreach="period.period_criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.criterion_id.id)"/>
+                                            <td style="text-align: center;">
                                                 <t t-out="'%.2f' % score_line.raw_score if score_line else '-'"/>
                                             </td>
                                         </t>
@@ -124,17 +138,17 @@
                         <!-- Bagian 3: Matriks Normalisasi -->
                         <!-- ============================================ -->
                         <h5 class="mt-4 mb-2"><strong>3. Matriks Normalisasi (rᵢⱼ)</strong></h5>
-                        <p class="small text-muted">
-                            Benefit: rᵢⱼ = xᵢⱼ / max(xⱼ) &amp;nbsp;|&amp;nbsp;
-                            Cost: rᵢⱼ = min(xⱼ) / xᵢⱼ
+                        <p style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">
+                            <strong>ℹ</strong> 
+                            Benefit: rᵢⱼ = xᵢⱼ / max(xⱼ) &amp;nbsp;|&amp;nbsp; Cost: rᵢⱼ = min(xⱼ) / xᵢⱼ
                         </p>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered table-striped" style="vertical-align: middle;">
                             <thead>
-                                <tr class="table-dark">
-                                    <th>Pemasok</th>
-                                    <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
-                                        <th class="text-center">
-                                            <t t-out="criterion.code"/>
+                                <tr style="background-color: #343a40;">
+                                    <th style="color: white;">Pemasok</th>
+                                    <t t-foreach="period.period_criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                        <th style="text-align: center; color: white;">
+                                            <t t-out="criterion.criterion_id.code"/>
                                         </th>
                                     </t>
                                 </tr>
@@ -143,9 +157,9 @@
                                 <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
                                     <tr>
                                         <td><t t-out="vendor_score.partner_id.name"/></td>
-                                        <t t-foreach="period.criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
-                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.id)"/>
-                                            <td class="text-center">
+                                        <t t-foreach="period.period_criterion_ids.sorted(key=lambda c: c.sequence)" t-as="criterion">
+                                            <t t-set="score_line" t-value="vendor_score.score_line_ids.filtered(lambda sl: sl.criterion_id.id == criterion.criterion_id.id)"/>
+                                            <td style="text-align: center;">
                                                 <t t-out="'%.4f' % score_line.normalized_score if score_line else '-'"/>
                                             </td>
                                         </t>
@@ -158,33 +172,33 @@
                         <!-- Bagian 4: Hasil Perangkingan -->
                         <!-- ============================================ -->
                         <h5 class="mt-4 mb-2"><strong>4. Hasil Perangkingan</strong></h5>
-                        <p class="small text-muted">
-                            Vᵢ = Σ(wⱼ × rᵢⱼ) — Semakin besar nilai Vᵢ, semakin tinggi peringkat.
+                        <p style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">
+                            <strong>∑</strong> Vᵢ = Σ(wⱼ × rᵢⱼ) — Semakin besar nilai Vᵢ, semakin tinggi peringkat.
                         </p>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered" style="vertical-align: middle;">
                             <thead>
-                                <tr class="table-dark">
-                                    <th style="width: 10%;">Rank</th>
-                                    <th style="width: 50%;">Pemasok</th>
-                                    <th style="width: 20%;">Skor Akhir (Vᵢ)</th>
-                                    <th style="width: 20%;">Rekomendasi</th>
+                                <tr style="background-color: #343a40;">
+                                    <th style="width: 10%; text-align: center; color: white;">Rank</th>
+                                    <th style="width: 50%; color: white;">Pemasok</th>
+                                    <th style="width: 20%; text-align: center; color: white;">Skor Akhir (Vᵢ)</th>
+                                    <th style="width: 20%; text-align: center; color: white;">Rekomendasi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="period.vendor_score_ids.sorted(key=lambda vs: vs.rank)" t-as="vendor_score">
-                                    <tr t-att-class="'table-success fw-bold' if vendor_score.is_recommended else ''">
-                                        <td class="text-center">
+                                    <tr t-att-style="'background-color: #d1e7dd; font-weight: bold;' if vendor_score.is_recommended else ''">
+                                        <td style="text-align: center;">
                                             <t t-out="vendor_score.rank"/>
                                         </td>
                                         <td>
                                             <t t-out="vendor_score.partner_id.name"/>
                                         </td>
-                                        <td class="text-center">
-                                            <t t-out="'%.4f' % vendor_score.final_score"/>
+                                        <td style="text-align: center;">
+                                            <strong><t t-out="'%.4f' % vendor_score.final_score"/></strong>
                                         </td>
-                                        <td class="text-center">
+                                        <td style="text-align: center;">
                                             <span t-if="vendor_score.is_recommended"
-                                                  class="badge bg-success">★ Terbaik</span>
+                                                  style="background-color: #198754; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px;">★ Terbaik</span>
                                         </td>
                                     </tr>
                                 </t>
@@ -195,14 +209,14 @@
                         <!-- Bagian 5: Kesimpulan -->
                         <!-- ============================================ -->
                         <t t-set="best_vendor" t-value="period.vendor_score_ids.filtered(lambda vs: vs.is_recommended)"/>
-                        <div class="mt-4 p-3 border rounded bg-light" t-if="best_vendor">
-                            <h5><strong>Kesimpulan</strong></h5>
-                            <p>
+                        <div class="mt-4 p-3" t-if="best_vendor" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                            <h5 style="margin-top: 0;"><strong>Kesimpulan</strong></h5>
+                            <p style="margin-bottom: 0;">
                                 Berdasarkan hasil perhitungan metode Simple Additive Weighting (SAW),
                                 pemasok dengan nilai preferensi tertinggi adalah
-                                <strong><t t-out="best_vendor.partner_id.name"/></strong>
+                                <strong><t t-out="best_vendor[0].partner_id.name"/></strong>
                                 dengan skor akhir
-                                <strong><t t-out="'%.4f' % best_vendor.final_score"/></strong>.
+                                <strong><t t-out="'%.4f' % best_vendor[0].final_score"/></strong>.
                                 Pemasok ini direkomendasikan sebagai pilihan utama untuk periode evaluasi
                                 <t t-out="period.name"/>.
                             </p>
@@ -211,16 +225,19 @@
                         <!-- ============================================ -->
                         <!-- Tanda Tangan -->
                         <!-- ============================================ -->
-                        <div class="row mt-5">
+                        <div class="row mt-5 pt-3">
                             <div class="col-6 text-center">
-                                <p>Evaluator,</p>
-                                <br/><br/><br/>
-                                <p><strong><t t-out="period.evaluator_id.name"/></strong></p>
+                                <p style="margin-bottom: 70px;">Evaluator,</p>
+                                <p class="mb-0"><strong><t t-out="period.evaluator_id.name"/></strong></p>
+                                <span style="font-size: 12px; color: #6c757d;"><t t-out="period.create_date" t-options='{"widget": "date"}'/></span>
                             </div>
                             <div class="col-6 text-center">
-                                <p>Validator,</p>
-                                <br/><br/><br/>
-                                <p><strong><t t-out="period.validator_id.name or '________________'"/></strong></p>
+                                <p style="margin-bottom: 70px;">Validator,</p>
+                                <p class="mb-0"><strong><t t-out="period.validator_id.name or '________________'"/></strong></p>
+                                <span style="font-size: 12px; color: #6c757d;">
+                                    <t t-if="period.validation_date" t-out="period.validation_date" t-options='{"widget": "date"}'/>
+                                    <t t-else="">Tanggal: ___/___/20__</t>
+                                </span>
                             </div>
                         </div>
 

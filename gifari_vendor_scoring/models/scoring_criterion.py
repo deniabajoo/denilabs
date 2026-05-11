@@ -24,11 +24,7 @@ class ScoringCriterion(models.Model):
         required=True,
         default='benefit',
     )
-    weight = fields.Float(
-        string="Bobot (%)",
-        required=True,
-        help="Bobot kepentingan kriteria dalam persen. Total bobot semua kriteria aktif harus 100%.",
-    )
+
     description = fields.Text(
         string="Panduan Penilaian",
         help="Penjelasan cara menilai kriteria ini (skala 1-100).",
@@ -47,27 +43,10 @@ class ScoringCriterion(models.Model):
         default=lambda self: self.env.company,
         required=True,
     )
-    weight_decimal = fields.Float(
-        string="Bobot Desimal",
-        compute='_compute_weight_decimal',
-        store=True,
-        help="Bobot dalam desimal (0-1) untuk kalkulasi SAW.",
-    )
+
 
     _unique_code_company = models.Constraint(
         'UNIQUE(code, company_id)',
         'Kode kriteria harus unik per perusahaan.',
     )
 
-    @api.depends('weight')
-    def _compute_weight_decimal(self):
-        for criterion in self:
-            criterion.weight_decimal = criterion.weight / 100.0
-
-    @api.constrains('weight')
-    def _check_weight_range(self):
-        for criterion in self:
-            if criterion.weight <= 0 or criterion.weight > 100:
-                raise ValidationError(
-                    "Bobot kriteria '%s' harus antara 0.01 dan 100." % criterion.name
-                )

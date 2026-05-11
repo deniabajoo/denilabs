@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Package: List View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_package_list" model="ir.ui.view">
+        <field name="name">scoring.package.list</field>
+        <field name="model">scoring.package</field>
+        <field name="arch" type="xml">
+            <list string="Paket Kriteria">
+                <field name="name"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Package: Form View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_package_form" model="ir.ui.view">
+        <field name="name">scoring.package.form</field>
+        <field name="model">scoring.package</field>
+        <field name="arch" type="xml">
+            <form string="Paket Kriteria">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Nama Paket..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kriteria &amp; Bobot">
+                            <field name="line_ids">
+                                <list string="Detail Kriteria" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="criterion_id"/>
+                                    <field name="criterion_type"/>
+                                    <field name="weight" sum="Total Bobot"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Package: Action -->
+    <!-- ============================================================ -->
+    <record id="action_scoring_package" model="ir.actions.act_window">
+        <field name="name">Paket Kriteria</field>
+        <field name="res_model">scoring.package</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Paket Kriteria Evaluasi!
+            </p>
+            <p>
+                Gunakan paket untuk mengelompokkan beberapa kriteria. 
+                Saat periode evaluasi memilih paket ini, sistem akan otomatis membagi bobot secara merata.
+            </p>
+        </field>
+    </record>
+
+</odoo>

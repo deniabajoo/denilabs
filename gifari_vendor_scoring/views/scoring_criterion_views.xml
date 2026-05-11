@@ -15,7 +15,6 @@
                 <field name="criterion_type"
                        decoration-success="criterion_type == 'benefit'"
                        decoration-danger="criterion_type == 'cost'"/>
-                <field name="weight" widget="float" sum="Total Bobot"/>
                 <field name="description" optional="hide"/>
                 <field name="active" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
@@ -46,8 +45,6 @@
                         </group>
                         <group string="Parameter SAW">
                             <field name="criterion_type" widget="radio"/>
-                            <field name="weight" widget="float"/>
-                            <field name="weight_decimal" readonly="1"/>
                         </group>
                     </group>
                     <group string="Panduan Penilaian">
@@ -97,9 +94,13 @@
                 Buat kriteria evaluasi pertama Anda!
             </p>
             <p>
-                Kriteria digunakan untuk menilai pemasok pada setiap periode evaluasi.
-                Setiap kriteria memiliki tipe (Benefit atau Cost) dan bobot kepentingan.
+                Kriteria menentukan aspek yang dinilai dari setiap pemasok.
+                Setiap kriteria memiliki:
             </p>
+            <ul>
+                <li><b>Tipe Benefit</b> — semakin besar skor semakin baik (contoh: Kualitas, Ketepatan Waktu)</li>
+                <li><b>Tipe Cost</b> — semakin kecil skor semakin baik (contoh: Harga)</li>
+            </ul>
         </field>
     </record>
 

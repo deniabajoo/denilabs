@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="product_supplierinfo_form_view_inherit_vendor_scoring" model="ir.ui.view">
+        <field name="name">product.supplierinfo.form.inherit.vendor.scoring</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="product.product_supplierinfo_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='vendor']" position="inside">
+                <field name="vs_latest_period_id" invisible="1"/>
+                <field name="vs_latest_score" invisible="not vs_latest_period_id"/>
+                <field name="vs_latest_rank_display" invisible="not vs_latest_period_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Tree/List View -->
+    <record id="product_supplierinfo_tree_view_inherit_vendor_scoring" model="ir.ui.view">
+        <field name="name">product.supplierinfo.list.inherit.vendor.scoring</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="product.product_supplierinfo_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='delay']" position="after">
+                <field name="vs_latest_period_id" column_invisible="1"/>
+                <field name="vs_latest_score" optional="show"/>
+                <field name="vs_latest_rank_display" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

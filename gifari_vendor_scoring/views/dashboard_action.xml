@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Dashboard: Client Action -->
+    <!-- ============================================================ -->
+    <record id="action_vendor_scoring_dashboard" model="ir.actions.client">
+        <field name="name">Vendor Scoring Dashboard</field>
+        <field name="tag">vendor_scoring_dashboard</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vendor Score: Graph View -->
+    <!-- ============================================================ -->
+    <record id="view_vendor_score_graph" model="ir.ui.view">
+        <field name="name">vendor.score.graph</field>
+        <field name="model">vendor.score</field>
+        <field name="arch" type="xml">
+            <graph string="Ranking Vendor" type="bar">
+                <field name="partner_id"/>
+                <field name="final_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vendor Score: Pivot View -->
+    <!-- ============================================================ -->
+    <record id="view_vendor_score_pivot" model="ir.ui.view">
+        <field name="name">vendor.score.pivot</field>
+        <field name="model">vendor.score</field>
+        <field name="arch" type="xml">
+            <pivot string="Performa Vendor Antar Periode">
+                <field name="partner_id" type="row"/>
+                <field name="period_id" type="col"/>
+                <field name="final_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vendor Score: List View (standalone) -->
+    <!-- ============================================================ -->
+    <record id="view_vendor_score_list" model="ir.ui.view">
+        <field name="name">vendor.score.list</field>
+        <field name="model">vendor.score</field>
+        <field name="arch" type="xml">
+            <list string="Skor Pemasok"
+                  decoration-success="is_recommended"
+                  default_order="rank">
+                <field name="rank" column_invisible="1"/>
+                <field name="rank_display" string="Peringkat" decoration-bf="rank &lt;= 3"/>
+                <field name="partner_id"/>
+                <field name="period_id"/>
+                <field name="final_score" decoration-bf="is_recommended"/>
+                <field name="is_recommended" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vendor Score: Search View -->
+    <!-- ============================================================ -->
+    <record id="view_vendor_score_search" model="ir.ui.view">
+        <field name="name">vendor.score.search</field>
+        <field name="model">vendor.score</field>
+        <field name="arch" type="xml">
+            <search string="Cari Skor Pemasok">
+                <field name="partner_id"/>
+                <field name="period_id"/>
+                <filter string="Direkomendasikan" name="filter_recommended"
+                        domain="[('is_recommended', '=', True)]"/>
+                <filter string="Tervalidasi" name="filter_validated"
+                        domain="[('period_id.state', '=', 'validated')]"/>
+                <separator/>
+                <group>
+                    <filter string="Pemasok" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Periode" name="group_period"
+                            context="{'group_by': 'period_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vendor Score: Window Action -->
+    <!-- ============================================================ -->
+    <record id="action_vendor_score" model="ir.actions.act_window">
+        <field name="name">Skor Pemasok</field>
+        <field name="res_model">vendor.score</field>
+        <field name="view_mode">list,graph,pivot,form</field>
+        <field name="search_view_id" ref="view_vendor_score_search"/>
+        <field name="context">{'search_default_filter_validated': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada skor pemasok.
+            </p>
+            <p>
+                Skor pemasok dibuat otomatis saat Anda memulai penilaian pada periode evaluasi.
+            </p>
+        </field>
+    </record>
+
+</odoo>

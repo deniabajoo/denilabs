@@ -39,9 +39,20 @@ class VendorScoreLine(models.Model):
         string="Tipe Kriteria",
     )
     criterion_weight = fields.Float(
-        related='criterion_id.weight',
         string="Bobot (%)",
+        compute='_compute_criterion_weight',
     )
+
+    @api.depends('vendor_score_id.period_id.period_criterion_ids.weight', 'criterion_id')
+    def _compute_criterion_weight(self):
+        for line in self:
+            if not line.vendor_score_id.period_id or not line.criterion_id:
+                line.criterion_weight = 0.0
+                continue
+            period_criterion = line.vendor_score_id.period_id.period_criterion_ids.filtered(
+                lambda pc: pc.criterion_id.id == line.criterion_id.id
+            )
+            line.criterion_weight = period_criterion.weight if period_criterion else 0.0
 
     @api.constrains('raw_score')
     def _check_raw_score_range(self):

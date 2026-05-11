@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="gifari_vendor_scoring.ScoringMatrix" owl="1">
+        <div class="scoring-matrix" t-ref="matrixContainer">
+
+            <!-- Loading State -->
+            <div t-if="state.loading" class="scoring-matrix__loading text-center p-4">
+                <i class="fa fa-spinner fa-spin fa-2x text-primary"/>
+                <p class="mt-2 text-muted">Memuat data matrix...</p>
+            </div>
+
+            <!-- Matrix Content -->
+            <div t-if="!state.loading" class="scoring-matrix__content">
+
+                <!-- Global Progress Bar -->
+                <div class="scoring-matrix__progress mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold">
+                            Penilaian:
+                            <span t-out="state.filledCells"/> / <span t-out="state.totalCells"/> skor terisi
+                        </span>
+                        <span class="badge"
+                              t-att-class="progressPercent === 100 ? 'text-bg-success' : 'text-bg-warning'">
+                            <t t-out="progressPercent"/>%
+                        </span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar"
+                             t-att-class="progressPercent === 100 ? 'bg-success' : 'bg-primary'"
+                             t-attf-style="width: #{progressPercent}%;"/>
+                    </div>
+                </div>
+
+                <!-- No Data -->
+                <div t-if="state.vendors.length === 0" class="alert alert-info">
+                    <i class="fa fa-info-circle"/> Belum ada pemasok untuk dievaluasi.
+                </div>
+
+                <!-- Matrix Table -->
+                <div t-if="state.vendors.length > 0" class="scoring-matrix__table-wrapper">
+                    <table class="scoring-matrix__table table table-bordered table-sm mb-0">
+                        <!-- Header -->
+                        <thead class="scoring-matrix__thead">
+                            <tr>
+                                <th class="scoring-matrix__th-vendor">Pemasok</th>
+                                <t t-foreach="state.criteria" t-as="criterion" t-key="criterion.id">
+                                    <th class="scoring-matrix__th-criterion text-center">
+                                        <div class="fw-bold" t-out="criterion.name"/>
+                                        <div class="scoring-matrix__th-meta">
+                                            <span class="badge"
+                                                  t-att-class="criterion.type === 'benefit' ? 'text-bg-success' : 'text-bg-danger'">
+                                                <t t-out="criterion.type === 'benefit' ? 'B' : 'C'"/>
+                                            </span>
+                                            <span class="text-muted ms-1">
+                                                <t t-out="criterion.weight"/>%
+                                            </span>
+                                        </div>
+                                    </th>
+                                </t>
+                                <th class="scoring-matrix__th-progress text-center">Progress</th>
+                            </tr>
+                        </thead>
+
+                        <!-- Body -->
+                        <tbody class="scoring-matrix__tbody">
+                            <t t-foreach="state.vendors" t-as="vendor" t-key="vendor.vendor_score_id">
+                                <tr class="scoring-matrix__row">
+                                    <!-- Vendor Name -->
+                                    <td class="scoring-matrix__td-vendor fw-semibold">
+                                        <t t-out="vendor.partner_name"/>
+                                    </td>
+
+                                    <!-- Score Cells -->
+                                    <t t-foreach="state.criteria" t-as="criterion" t-key="criterion.id">
+                                        <td class="scoring-matrix__td-score text-center p-1">
+                                            <input type="number"
+                                                   t-att-class="getCellClass(vendor, criterion.id)"
+                                                   t-att-value="getScoreValue(vendor, criterion.id) || ''"
+                                                   t-att-placeholder="isCellEmpty(vendor, criterion.id) ? '⌷' : ''"
+                                                   t-att-readonly="isReadonly"
+                                                   t-att-data-vendor-idx="vendor_index"
+                                                   t-att-data-criterion-idx="criterion_index"
+                                                   t-att-min="criterion.type === 'benefit' ? 1 : 0.01"
+                                                   t-att-max="criterion.type === 'benefit' ? 100 : ''"
+                                                   step="any"
+                                                   t-on-input="(ev) => this.onCellInput(ev, vendor, criterion)"
+                                                   t-on-blur="(ev) => this.onCellBlur(ev, vendor, criterion)"
+                                                   t-on-keydown="(ev) => this.onCellKeydown(ev, vendor_index, criterion_index)"/>
+                                        </td>
+                                    </t>
+
+                                    <!-- Progress -->
+                                    <td class="scoring-matrix__td-progress text-center">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <div class="progress flex-grow-1" style="height: 6px;">
+                                                <div class="progress-bar"
+                                                     t-att-class="getVendorProgress(vendor) === 100 ? 'bg-success' : 'bg-warning'"
+                                                     t-attf-style="width: #{getVendorProgress(vendor)}%;"/>
+                                            </div>
+                                            <small class="text-muted text-nowrap">
+                                                <t t-out="vendor.filled_count"/>/<t t-out="vendor.total_criteria"/>
+                                            </small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+
+                        <!-- Footer -->
+                        <tfoot class="scoring-matrix__tfoot">
+                            <tr class="text-muted small">
+                                <td class="fw-semibold">Tipe / Bobot</td>
+                                <t t-foreach="state.criteria" t-as="criterion" t-key="criterion.id">
+                                    <td class="text-center">
+                                        <span t-att-class="criterion.type === 'benefit' ? 'text-success' : 'text-danger'">
+                                            <t t-out="criterion.type === 'benefit' ? 'Benefit' : 'Cost'"/>
+                                        </span>
+                                        <br/>
+                                        <span class="fw-bold"><t t-out="criterion.weight"/>%</span>
+                                    </td>
+                                </t>
+                                <td/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Keyboard Shortcut Hint -->
+                <div class="scoring-matrix__hints text-muted small mt-2" t-if="!isReadonly">
+                    <i class="fa fa-keyboard-o"/> Tab/Enter: sel berikutnya · Shift+Tab: mundur · Arrow keys: navigasi
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

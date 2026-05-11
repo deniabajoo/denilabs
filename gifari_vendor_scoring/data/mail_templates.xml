@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Email: Periode Dimulai (Input Skor) -->
+    <record id="mail_template_period_started" model="mail.template">
+        <field name="name">Vendor Scoring: Mulai Penilaian</field>
+        <field name="model_id" ref="gifari_vendor_scoring.model_scoring_period"/>
+        <field name="subject">Input Skor Vendor: {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.evaluator_id.email_formatted }}</field>
+        <field name="description">Dikirim ke Evaluator saat periode dimulai.</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Halo <t t-out="object.evaluator_id.name or ''">Evaluator</t>,
+                    <br/><br/>
+                    Periode evaluasi pemasok <strong><t t-out="object.name or ''"/></strong> telah dimulai.
+                    Anda ditugaskan sebagai Evaluator untuk melengkapi skor kriteria dari pemasok yang bersangkutan.
+                    <br/><br/>
+                    Tenggat Waktu: <strong><t t-out="object.date_to or ''"/></strong>
+                    <br/><br/>
+                    <div style="margin: 16px 0px 16px 0px;">
+                        <a t-att-href="object.get_base_url() + '/web#id=' + str(object.id) + '&amp;model=scoring.period&amp;view_type=form'"
+                           style="background-color: #7c3aed; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                            Input Skor Sekarang
+                        </a>
+                    </div>
+                    <br/><br/>
+                    Terima kasih,
+                    <br/>
+                    <t t-out="user.company_id.name or ''">YourCompany</t>
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Email: Skor Dihitung (Minta Validasi) -->
+    <record id="mail_template_period_calculated" model="mail.template">
+        <field name="name">Vendor Scoring: Minta Validasi</field>
+        <field name="model_id" ref="gifari_vendor_scoring.model_scoring_period"/>
+        <field name="subject">Permintaan Validasi Skor Vendor: {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.validator_id.email_formatted or user.email_formatted }}</field>
+        <field name="description">Dikirim ke Validator setelah skor dihitung.</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Halo <t t-out="object.validator_id.name or 'Validator'">Validator</t>,
+                    <br/><br/>
+                    Perhitungan metode SAW untuk periode <strong><t t-out="object.name or ''"/></strong> telah selesai.
+                    <br/>
+                    Vendor peringkat teratas saat ini adalah: <strong><t t-out="object.top_vendor_name or ''"/></strong> dengan skor <strong><t t-out="round(object.top_score_value, 4) or ''"/></strong>.
+                    <br/><br/>
+                    Harap tinjau hasil penilaian tersebut dan lakukan validasi jika sudah sesuai.
+                    <br/><br/>
+                    <div style="margin: 16px 0px 16px 0px;">
+                        <a t-att-href="object.get_base_url() + '/web#id=' + str(object.id) + '&amp;model=scoring.period&amp;view_type=form'"
+                           style="background-color: #10b981; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                            Validasi Hasil Evaluasi
+                        </a>
+                    </div>
+                    <br/><br/>
+                    Terima kasih,
+                    <br/>
+                    <t t-out="user.company_id.name or ''">YourCompany</t>
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Email: Periode Tervalidasi -->
+    <record id="mail_template_period_validated" model="mail.template">
+        <field name="name">Vendor Scoring: Evaluasi Tervalidasi</field>
+        <field name="model_id" ref="gifari_vendor_scoring.model_scoring_period"/>
+        <field name="subject">Hasil Evaluasi Vendor Tervalidasi: {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.evaluator_id.email_formatted }}</field>
+        <field name="description">Dikirim kembali ke Evaluator sebagai notifikasi selesai.</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Halo <t t-out="object.evaluator_id.name or ''">Evaluator</t>,
+                    <br/><br/>
+                    Hasil penilaian untuk periode <strong><t t-out="object.name or ''"/></strong> telah divalidasi oleh <strong><t t-out="object.validator_id.name or ''"/></strong>.
+                    <br/><br/>
+                    Ranking final telah ditetapkan dan laporan PDF sudah dapat dicetak.
+                    <br/><br/>
+                    <div style="margin: 16px 0px 16px 0px;">
+                        <a t-att-href="object.get_base_url() + '/web#id=' + str(object.id) + '&amp;model=scoring.period&amp;view_type=form'"
+                           style="background-color: #3b82f6; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                            Lihat Hasil Final
+                        </a>
+                    </div>
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Email: Reminder Scoring (Cron) -->
+    <record id="mail_template_scoring_reminder" model="mail.template">
+        <field name="name">Vendor Scoring: Reminder Input Skor</field>
+        <field name="model_id" ref="gifari_vendor_scoring.model_scoring_period"/>
+        <field name="subject">PENGINGAT: Tenggat Waktu Input Skor - {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.evaluator_id.email_formatted }}</field>
+        <field name="description">Dikirim otomatis H-3 deadline untuk periode scoring yang belum dihitung.</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Halo <t t-out="object.evaluator_id.name or ''">Evaluator</t>,
+                    <br/><br/>
+                    Ini adalah pesan pengingat bahwa tenggat waktu untuk melengkapi skor vendor pada periode <strong><t t-out="object.name or ''"/></strong> akan segera berakhir (kurang dari 3 hari).
+                    <br/><br/>
+                    Tenggat Waktu: <strong style="color: red;"><t t-out="object.date_to or ''"/></strong>
+                    <br/><br/>
+                    Harap segera input skor di sistem.
+                    <br/><br/>
+                    <div style="margin: 16px 0px 16px 0px;">
+                        <a t-att-href="object.get_base_url() + '/web#id=' + str(object.id) + '&amp;model=scoring.period&amp;view_type=form'"
+                           style="background-color: #dc2626; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                            Lengkapi Skor Sekarang
+                        </a>
+                    </div>
+                </p>
+            </div>
+        </field>
+    </record>
+
+</odoo>

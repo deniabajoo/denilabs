@@ -47,27 +47,27 @@ class ResConfigSettings(models.TransientModel):
         if evaluator_group:
             self._sync_group_members(
                 evaluator_group,
-                company.vendor_scoring_evaluator_ids,
                 self.vendor_scoring_evaluator_ids,
             )
         if validator_group:
             self._sync_group_members(
                 validator_group,
-                company.vendor_scoring_validator_ids,
                 self.vendor_scoring_validator_ids,
             )
         if configurator_group:
             self._sync_group_members(
                 configurator_group,
-                company.vendor_scoring_configurator_ids,
                 self.vendor_scoring_configurator_ids,
             )
 
     @api.private
-    def _sync_group_members(self, group, old_users, new_users):
+    def _sync_group_members(self, group, selected_users):
         """Sync security group membership with Settings user selection."""
-        removed_users = old_users - new_users
-        added_users = new_users - old_users
+        company = self.env.company
+        current_users = group.sudo().user_ids.filtered(lambda u: company in u.company_ids)
+        
+        removed_users = current_users - selected_users
+        added_users = selected_users - current_users
 
         for removed_user in removed_users:
             removed_user.sudo().write({'groups_id': [(3, group.id)]})

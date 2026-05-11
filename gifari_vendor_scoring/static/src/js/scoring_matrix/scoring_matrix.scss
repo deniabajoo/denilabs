@@ -1,0 +1,170 @@
+/* Scoring Matrix OWL Component Styles */
+
+.scoring-matrix {
+    padding: 0.5rem;
+}
+
+/* Table Wrapper — horizontal scroll for many criteria */
+.scoring-matrix__table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--o-border-color, #dee2e6);
+}
+
+.scoring-matrix__table {
+    margin-bottom: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Sticky vendor column */
+.scoring-matrix__th-vendor,
+.scoring-matrix__td-vendor {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: var(--o-webclient-background-color, #fff);
+    min-width: 180px;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-right: 2px solid var(--o-border-color, #dee2e6) !important;
+}
+
+/* Sticky header */
+.scoring-matrix__thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+.scoring-matrix__thead th {
+    background-color: var(--o-view-background-color, #f8f9fa);
+    vertical-align: middle;
+    padding: 0.5rem !important;
+}
+
+.scoring-matrix__th-criterion {
+    min-width: 120px;
+}
+
+.scoring-matrix__th-meta {
+    margin-top: 2px;
+    font-weight: normal;
+    font-size: 0.75rem;
+}
+
+.scoring-matrix__th-progress {
+    min-width: 100px;
+}
+
+/* Body rows */
+.scoring-matrix__row:hover {
+    background-color: rgba(0, 123, 255, 0.04);
+}
+
+.scoring-matrix__row:hover .scoring-matrix__td-vendor {
+    background-color: rgba(0, 123, 255, 0.04);
+}
+
+.scoring-matrix__td-score {
+    padding: 2px !important;
+}
+
+/* Input cells */
+.scoring-matrix__cell-input {
+    width: 100%;
+    max-width: 90px;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+    border: 1px solid var(--o-border-color, #dee2e6);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+    background-color: #fff;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    &:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+        outline: none;
+        background-color: #fff;
+    }
+
+    &:hover:not(:focus):not([readonly]) {
+        border-color: #a78bfa;
+    }
+
+    &[readonly] {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+}
+
+.scoring-matrix__cell-input--empty {
+    background-color: #fef9c3;
+    border-color: #fbbf24;
+
+    &::placeholder {
+        color: #d97706;
+        font-size: 1rem;
+    }
+}
+
+.scoring-matrix__cell-input--saving {
+    background-color: #e0f2fe;
+    border-color: #38bdf8;
+    animation: scoring-matrix-pulse 0.6s ease-in-out;
+}
+
+@keyframes scoring-matrix-pulse {
+    0% { background-color: #e0f2fe; }
+    50% { background-color: #bae6fd; }
+    100% { background-color: #e0f2fe; }
+}
+
+/* Progress cells */
+.scoring-matrix__td-progress {
+    min-width: 90px;
+    vertical-align: middle !important;
+}
+
+/* Footer */
+.scoring-matrix__tfoot td {
+    background-color: var(--o-view-background-color, #f8f9fa);
+    border-top: 2px solid var(--o-border-color, #dee2e6) !important;
+    padding: 0.4rem !important;
+}
+
+/* Progress bar global */
+.scoring-matrix__progress {
+    padding: 0.5rem 0;
+}
+
+/* Keyboard hints */
+.scoring-matrix__hints {
+    padding: 0.25rem 0;
+
+    i {
+        margin-right: 4px;
+    }
+}
+
+/* Loading */
+.scoring-matrix__loading {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

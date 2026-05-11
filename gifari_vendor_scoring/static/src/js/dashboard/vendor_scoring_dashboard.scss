@@ -1,0 +1,76 @@
+/* Vendor Scoring Dashboard Styles */
+
+.vs-dashboard {
+    background-color: var(--o-webclient-background-color, #f8f9fa);
+    min-height: 100vh;
+}
+
+.vs-dashboard__header h2 {
+    color: #1e1b4b;
+    font-weight: 700;
+}
+
+/* KPI Cards */
+.vs-dashboard__kpi-card {
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+}
+
+.vs-dashboard__kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* Cards */
+.vs-dashboard .card {
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.vs-dashboard .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid #f3f4f6;
+    padding: 0.75rem 1rem;
+}
+
+/* Chart containers */
+.vs-dashboard__chart-container {
+    position: relative;
+    height: 320px;
+}
+
+/* Leaderboard */
+.vs-dashboard .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.65rem 1rem;
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: #f9fafb;
+    }
+
+    &:first-child {
+        background: linear-gradient(135deg, #fefce8, #fff);
+    }
+}
+
+/* Loading */
+.vs-dashboard__loading {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

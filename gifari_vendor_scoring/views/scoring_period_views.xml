@@ -33,6 +33,78 @@
     </record>
 
     <!-- ============================================================ -->
+    <!-- Scoring Period: Kanban View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_period_kanban" model="ir.ui.view">
+        <field name="name">scoring.period.kanban</field>
+        <field name="model">scoring.period</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" records_draggable="false" sample="1">
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong><field name="name"/></strong>
+                            <field name="state" widget="badge"
+                                   decoration-info="state == 'draft'"
+                                   decoration-warning="state == 'scoring'"
+                                   decoration-success="state in ('calculated', 'validated')"
+                                   decoration-danger="state == 'cancelled'"/>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            <i class="fa fa-calendar" title="Periode"/> <field name="date_from"/> — <field name="date_to"/>
+                        </div>
+                        <div class="mb-1">
+                            <span class="badge rounded-pill text-bg-primary">
+                                <i class="fa fa-users" title="Pemasok"/> <field name="vendor_count"/> pemasok
+                            </span>
+                        </div>
+                        <div t-if="record.score_total_count.raw_value > 0" class="mb-1">
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar"
+                                     t-attf-style="width: #{record.scoring_progress_percent.raw_value}%;"
+                                     t-att-class="{'bg-success': record.score_filled_count.raw_value == record.score_total_count.raw_value, 'bg-warning': record.score_filled_count.raw_value != record.score_total_count.raw_value}"/>
+                            </div>
+                            <small class="text-muted">
+                                <field name="score_filled_count"/>/<field name="score_total_count"/> skor terisi
+                            </small>
+                        </div>
+                        <div t-attf-class="mb-1 #{record.is_weight_valid.raw_value ? 'text-success' : 'text-danger'}">
+                            <i t-attf-class="fa #{record.is_weight_valid.raw_value ? 'fa-check-circle' : 'fa-exclamation-triangle'}" title="Status Bobot"/>
+                            Bobot: <field name="total_weight"/>%
+                        </div>
+                        <div t-if="record.top_vendor_name.value" class="mb-1">
+                            <span class="badge rounded-pill text-bg-warning">
+                                🏆 <field name="top_vendor_name"/>
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <field name="evaluator_id" widget="many2one_avatar_user"/>
+                        </div>
+                        <field name="is_weight_valid" invisible="1"/>
+                        <field name="scoring_progress_percent" invisible="1"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Scoring Period: Calendar View -->
+    <!-- ============================================================ -->
+    <record id="view_scoring_period_calendar" model="ir.ui.view">
+        <field name="name">scoring.period.calendar</field>
+        <field name="model">scoring.period</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_from" date_stop="date_to" color="state" mode="month">
+                <field name="name"/>
+                <field name="evaluator_id" widget="many2one_avatar_user"/>
+                <field name="vendor_count"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
     <!-- Scoring Period: Form View -->
     <!-- ============================================================ -->
     <record id="view_scoring_period_form" model="ir.ui.view">
@@ -78,9 +150,43 @@
                            statusbar_visible="draft,scoring,calculated,validated"/>
                 </header>
                 <sheet>
+                    <!-- Smart Buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_vendor_scores"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-users"
+                                invisible="vendor_count == 0">
+                            <field name="vendor_count" string="Vendor Dievaluasi" widget="statinfo"/>
+                        </button>
+                        <button name="action_view_vendor_scores"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-bar-chart"
+                                invisible="score_total_count == 0">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="score_filled_count" class="d-inline"/> / <field name="score_total_count" class="d-inline"/>
+                                </span>
+                                <span class="o_stat_text">Skor Terisi</span>
+                            </div>
+                        </button>
+                        <button name="action_view_top_vendor"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-trophy"
+                                invisible="state not in ('calculated', 'validated')">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="top_score_value" class="d-inline"/>
+                                </span>
+                                <span class="o_stat_text">Skor Tertinggi</span>
+                            </div>
+                        </button>
+                    </div>
                     <!-- Banner warning jika bobot tidak valid -->
                     <div class="alert alert-warning text-center" role="alert"
-                         invisible="is_weight_valid or not criterion_ids">
+                         invisible="is_weight_valid or not period_criterion_ids">
                         <strong>⚠ Total bobot kriteria saat ini:
                             <field name="total_weight" class="d-inline"/>%
                         </strong> — harus tepat 100% sebelum memulai penilaian.
@@ -94,35 +200,27 @@
                         </h1>
                     </div>
 
-                    <group>
-                        <group string="Periode">
-                            <field name="date_from" readonly="state not in ('draft',)"/>
-                            <field name="date_to" readonly="state not in ('draft',)"/>
+                    <!-- Mode Draft: Full Setup View -->
+                    <group invisible="state != 'draft'">
+                        <group string="Periode &amp; Personil">
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="evaluator_id" widget="many2one_avatar_user"/>
                             <field name="company_id" invisible="1"/>
                             <field name="is_weight_valid" invisible="1"/>
                         </group>
-                        <group string="Personil">
-                            <field name="evaluator_id"
-                                   widget="many2one_avatar_user"
-                                   readonly="state == 'validated'"/>
-                            <field name="validator_id"
-                                   widget="many2one_avatar_user"
-                                   readonly="1"
-                                   invisible="state not in ('validated',)"/>
-                            <field name="validation_date"
-                                   readonly="1"
-                                   invisible="state not in ('validated',)"/>
+                        <group string="Kriteria Evaluasi">
+                            <field name="package_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="period_criterion_ids" nolabel="1" readonly="state != 'draft'" colspan="2">
+                                <list string="Kriteria &amp; Bobot" editable="bottom">
+                                    <field name="criterion_id" options="{'no_create': True}"/>
+                                    <field name="criterion_type" readonly="1" force_save="1"/>
+                                    <field name="weight" widget="float"/>
+                                </list>
+                            </field>
                         </group>
                     </group>
-
-                    <!-- Kriteria yang digunakan -->
-                    <group string="Kriteria Evaluasi" invisible="state not in ('draft', 'scoring')">
-                        <field name="criterion_ids" nolabel="1" widget="many2many_tags"
-                               options="{'color_field': 'criterion_type'}"
-                               readonly="state != 'draft'"/>
-                    </group>
-
-                    <!-- Pilihan Pemasok (hanya di Draft) -->
+                    
                     <group string="Pemasok yang Dievaluasi" invisible="state != 'draft'">
                         <field name="partner_ids" nolabel="1">
                             <list string="Pemasok">
@@ -133,40 +231,29 @@
                         </field>
                     </group>
 
+                    <!-- Mode Active (Scoring/Calculated/Validated): Slim Header -->
+                    <group invisible="state == 'draft'">
+                        <group>
+                            <field name="date_from" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                            <field name="is_weight_valid" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="evaluator_id" widget="many2one_avatar_user" readonly="state == 'validated'"/>
+                            <field name="validator_id" widget="many2one_avatar_user" readonly="1" invisible="state not in ('validated',)"/>
+                            <field name="validation_date" readonly="1" invisible="state not in ('validated',)"/>
+                        </group>
+                    </group>
+
                     <notebook>
-                        <!-- Tab 1: Input Skor Pemasok -->
-                        <page string="📝 Skor Pemasok" name="page_scores"
-                              invisible="state not in ('scoring', 'calculated', 'validated')">
-                            <field name="vendor_score_ids" nolabel="1"
-                                   readonly="state in ('calculated', 'validated')">
-                                <list string="Skor Pemasok"
-                                      decoration-success="is_recommended"
-                                      editable="bottom">
-                                    <field name="period_state" column_invisible="1"/>
-                                    <field name="rank" readonly="1"
-                                           invisible="period_state == 'scoring'"
-                                           optional="show"
-                                           decoration-bf="rank == 1"/>
-                                    <field name="partner_id" readonly="1"/>
-                                    <field name="score_line_ids" widget="many2many_tags"
-                                           invisible="1"/>
-                                    <field name="final_score" readonly="1"
-                                           invisible="period_state == 'scoring'"
-                                           decoration-bf="is_recommended"
-                                           optional="show"/>
-                                    <field name="is_recommended" readonly="1"
-                                           invisible="period_state == 'scoring'"
-                                           widget="boolean_toggle"
-                                           optional="show"/>
-                                    <button name="action_open_score_detail"
-                                            string="📋 Detail Skor"
-                                            type="object"
-                                            icon="fa-list-alt"/>
-                                </list>
-                            </field>
+                        <!-- Tab 1: Matrix Scoring (OWL) - Fokus utama saat eksekusi -->
+                        <page string="📊 Matrix Penilaian" name="page_matrix"
+                              invisible="state != 'scoring'">
+                            <widget name="scoring_matrix"/>
                         </page>
 
-                        <!-- Tab 2: Hasil Ranking -->
+                        <!-- Tab 2: Hasil Ranking - Fokus utama setelah terhitung -->
                         <page string="🏆 Hasil Ranking" name="page_ranking"
                               invisible="state not in ('calculated', 'validated')">
                             <field name="vendor_score_ids" nolabel="1" readonly="1">
@@ -175,7 +262,9 @@
                                       decoration-warning="rank == 2"
                                       decoration-info="rank == 3"
                                       default_order="rank">
-                                    <field name="rank" decoration-bf="rank &lt;= 3"/>
+                                    <field name="rank" column_invisible="1"/>
+                                    <field name="rank_display" string="Peringkat"
+                                           decoration-bf="rank &lt;= 3"/>
                                     <field name="partner_id" decoration-bf="rank == 1"/>
                                     <field name="final_score" widget="float"
                                            decoration-bf="rank == 1"/>
@@ -184,14 +273,44 @@
                             </field>
                         </page>
 
-                        <!-- Tab 3: Catatan -->
+                        <!-- Tab 3: Audit Skor Detail - Hanya jika perlu audit angka mentah -->
+                        <page string="📋 Audit Skor Detail" name="page_scores"
+                              invisible="state not in ('calculated', 'validated')">
+                            <field name="vendor_score_ids" nolabel="1"
+                                   readonly="state in ('calculated', 'validated')">
+                                <list string="Skor Pemasok"
+                                      decoration-success="is_recommended">
+                                    <field name="period_state" column_invisible="1"/>
+                                    <field name="rank" readonly="1"
+                                           optional="show"
+                                           decoration-bf="rank == 1"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="score_line_ids" widget="many2many_tags"
+                                           invisible="1"/>
+                                    <field name="final_score" readonly="1"
+                                           decoration-bf="is_recommended"
+                                           optional="show"/>
+                                    <field name="is_recommended" readonly="1"
+                                           widget="boolean_toggle"
+                                           optional="show"/>
+                                    <button name="action_open_score_detail"
+                                            string="📋 Rincian Kalkulasi"
+                                            type="object"
+                                            icon="fa-list-alt"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 4: Catatan - Selalu terlihat -->
                         <page string="📝 Catatan" name="page_notes">
                             <field name="notes" nolabel="1"
-                                   placeholder="Catatan evaluator..."
+                                   placeholder="Catatan periode ini..."
                                    readonly="state == 'validated'"/>
                         </page>
                     </notebook>
                 </sheet>
+                <!-- Chatter / Mail Thread -->
+                <chatter/>
             </form>
         </field>
     </record>
@@ -220,11 +339,26 @@
                 <filter string="Tahun Ini" name="filter_this_year"
                         domain="[('date_from', '&gt;=', (context_today() - relativedelta(month=1, day=1)).strftime('%%Y-%%m-%%d')),
                                  ('date_from', '&lt;=', (context_today() + relativedelta(month=12, day=31)).strftime('%%Y-%%m-%%d'))]"/>
+                <separator/>
+                <filter string="Periode Aktif" name="filter_active_period"
+                        domain="[('date_from', '&lt;=', context_today().strftime('%%Y-%%m-%%d')),
+                                 ('date_to', '&gt;=', context_today().strftime('%%Y-%%m-%%d'))]"/>
+                <filter string="Bobot Tidak Valid" name="filter_invalid_weight"
+                        domain="[('is_weight_valid', '=', False)]"/>
+                <separator/>
+                <filter string="Saya Evaluator" name="filter_my_evaluator"
+                        domain="[('evaluator_id', '=', uid)]"/>
+                <filter string="Saya Validator" name="filter_my_validator"
+                        domain="[('validator_id', '=', uid)]"/>
                 <group>
                     <filter string="Status" name="group_state"
                             context="{'group_by': 'state'}"/>
                     <filter string="Evaluator" name="group_evaluator"
                             context="{'group_by': 'evaluator_id'}"/>
+                    <filter string="Kuartal" name="group_quarter"
+                            context="{'group_by': 'date_from:quarter'}"/>
+                    <filter string="Tahun" name="group_year"
+                            context="{'group_by': 'date_from:year'}"/>
                 </group>
             </search>
         </field>
@@ -236,16 +370,22 @@
     <record id="action_scoring_period" model="ir.actions.act_window">
         <field name="name">Periode Evaluasi</field>
         <field name="res_model">scoring.period</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,calendar,form</field>
         <field name="context">{'search_default_filter_draft': 1, 'search_default_filter_scoring': 1, 'search_default_filter_calculated': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Buat periode evaluasi baru!
             </p>
             <p>
-                Periode evaluasi digunakan untuk menilai pemasok secara berkala.
-                Pilih kriteria, input skor, dan sistem akan menghitung ranking otomatis
-                menggunakan metode SAW.
+                Mulai evaluasi pemasok dalam <b>3 langkah mudah</b>:
+            </p>
+            <ol>
+                <li><b>Setup Kriteria</b> — Tentukan kriteria evaluasi (Kualitas, Harga, dll) di menu Konfigurasi → Kriteria Evaluasi</li>
+                <li><b>Buat Periode</b> — Buat periode evaluasi baru, pilih kriteria dan pemasok yang akan dinilai</li>
+                <li><b>Mulai Evaluasi</b> — Klik "Mulai Penilaian", input skor, lalu sistem menghitung ranking otomatis</li>
+            </ol>
+            <p>
+                Sistem menggunakan metode <b>Simple Additive Weighting (SAW)</b> untuk menghitung peringkat pemasok secara objektif.
             </p>
         </field>
     </record>
@@ -287,6 +427,8 @@
                         </list>
                     </field>
                 </sheet>
+                <!-- Chatter / Mail Thread -->
+                <chatter/>
             </form>
         </field>
     </record>

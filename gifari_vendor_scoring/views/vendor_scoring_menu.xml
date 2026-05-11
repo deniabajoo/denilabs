@@ -11,12 +11,26 @@
               parent="purchase.menu_purchase_root"
               sequence="30"/>
 
+    <!-- Dashboard (menu utama) -->
+    <menuitem id="menu_vendor_scoring_dashboard"
+              name="Dashboard"
+              parent="menu_vendor_scoring_root"
+              action="action_vendor_scoring_dashboard"
+              sequence="5"/>
+
     <!-- Periode Evaluasi -->
     <menuitem id="menu_scoring_period"
               name="Periode Evaluasi"
               parent="menu_vendor_scoring_root"
               action="action_scoring_period"
               sequence="10"/>
+
+    <!-- Skor Pemasok (Analisis) -->
+    <menuitem id="menu_vendor_score_analysis"
+              name="Analisis Skor"
+              parent="menu_vendor_scoring_root"
+              action="action_vendor_score"
+              sequence="20"/>
 
     <!-- Konfigurasi -->
     <menuitem id="menu_vendor_scoring_config"
@@ -30,5 +44,11 @@
               parent="menu_vendor_scoring_config"
               action="action_scoring_criterion"
               sequence="10"/>
+
+    <menuitem id="menu_scoring_package"
+              name="Paket Kriteria"
+              parent="menu_vendor_scoring_config"
+              action="action_scoring_package"
+              sequence="20"/>
 
 </odoo>
