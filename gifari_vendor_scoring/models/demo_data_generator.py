@@ -84,17 +84,18 @@ VENDOR_MASTER = [
 ]
 
 # Profil kepribadian skor vendor — menghasilkan variasi ranking yang realistis
+# C1=Kualitas, C2=Harga (cost), C3=Ketepatan Waktu, C4=Kapasitas/Stok, C5=Layanan
 VENDOR_SCORE_PROFILES = [
-    # Krakatau Steel: kualitas baja sangat tinggi, harga premium
-    {'C1': (85, 95), 'C2': (3500, 4500), 'C3': (75, 88), 'C4': (78, 90)},
-    # Semen Indonesia: performa stabil di semua aspek, harga kompetitif
-    {'C1': (80, 92), 'C2': (3000, 4000), 'C3': (80, 92), 'C4': (75, 88)},
+    # Krakatau Steel: kualitas baja sangat tinggi, harga premium, kapasitas besar
+    {'C1': (85, 95), 'C2': (3500, 4500), 'C3': (75, 88), 'C4': (85, 95), 'C5': (78, 90)},
+    # Semen Indonesia: performa stabil, harga kompetitif, kapasitas tinggi
+    {'C1': (80, 92), 'C2': (3000, 4000), 'C3': (80, 92), 'C4': (88, 95), 'C5': (75, 88)},
     # United Tractors: layanan after-sales unggulan, harga paling mahal
-    {'C1': (78, 90), 'C2': (4000, 5000), 'C3': (82, 95), 'C4': (85, 95)},
-    # Pionirbeton: delivery tercepat, kualitas standar
-    {'C1': (75, 88), 'C2': (3200, 4200), 'C3': (85, 95), 'C4': (80, 90)},
+    {'C1': (78, 90), 'C2': (4000, 5000), 'C3': (82, 95), 'C4': (75, 85), 'C5': (85, 95)},
+    # Pionirbeton: delivery tercepat, kapasitas terbatas
+    {'C1': (75, 88), 'C2': (3200, 4200), 'C3': (85, 95), 'C4': (70, 82), 'C5': (80, 90)},
     # Pertamina Patra Niaga: harga paling bersaing, layanan rata-rata
-    {'C1': (78, 88), 'C2': (2800, 3800), 'C3': (78, 90), 'C4': (72, 85)},
+    {'C1': (78, 88), 'C2': (2800, 3800), 'C3': (78, 90), 'C4': (78, 88), 'C5': (72, 85)},
 ]
 
 DEMO_USERS = [
@@ -138,7 +139,7 @@ class ScoringPeriodDemoGenerator(models.Model):
         self._setup_company_info()
         vendors = self._ensure_demo_vendors()
         package = self.env.ref(
-            'gifari_vendor_scoring.package_default_4c',
+            'gifari_vendor_scoring.package_default_5c',
             raise_if_not_found=False,
         )
         if not package or not package.line_ids:

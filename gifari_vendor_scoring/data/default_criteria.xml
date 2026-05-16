@@ -3,54 +3,67 @@
     <data noupdate="0">
 
         <!-- ============================================================ -->
-        <!-- 4 Kriteria Evaluasi Default -->
-        <!-- Berdasarkan kajian literatur: Rusvinasari (2024), -->
-        <!-- Mar'atullatifah & Sari (2023), Hasibuan et al. (2023) -->
+        <!-- 5 Kriteria Evaluasi Default — Konteks Industri Konstruksi -->
+        <!-- Berdasarkan: Dickson (1966) konsolidasi 23 kriteria, -->
+        <!-- Rusvinasari (2024), Hasibuan et al. (2023), -->
+        <!-- Mar'atullatifah & Sari (2023), serta FGD Tim Pengadaan -->
+        <!-- PT Indonesia Pondasi Raya Tbk (Februari 2025) -->
+        <!-- Total bobot: 30 + 25 + 25 + 12 + 8 = 100% -->
         <!-- ============================================================ -->
 
         <record id="criterion_quality" model="scoring.criterion">
-            <field name="name">Kualitas</field>
+            <field name="name">Kualitas Material/Produk</field>
             <field name="code">C1</field>
             <field name="criterion_type">benefit</field>
             <field name="sequence">10</field>
-            <field name="description">Penilaian kualitas produk yang dikirimkan oleh pemasok.
-Skala 1-100: Semakin tinggi skor = semakin baik</field>
+            <field name="description">Penilaian mutu material/produk yang dikirimkan pemasok (defect rate, kesesuaian spesifikasi teknis, sertifikasi standar industri).
+Skala 1-100: Semakin tinggi skor = semakin baik kualitas material</field>
         </record>
 
         <record id="criterion_price" model="scoring.criterion">
-            <field name="name">Harga</field>
+            <field name="name">Harga Pengadaan</field>
             <field name="code">C2</field>
             <field name="criterion_type">cost</field>
             <field name="sequence">20</field>
-            <field name="description">Penilaian daya saing harga yang ditawarkan pemasok.
-Semakin rendah harga = semakin baik</field>
+            <field name="description">Penilaian daya saing harga material/jasa yang ditawarkan pemasok dibanding pemasok lain.
+Skala: Skor mewakili harga relatif (semakin rendah skor = semakin murah = semakin baik)</field>
         </record>
 
         <record id="criterion_delivery" model="scoring.criterion">
-            <field name="name">Ketepatan Waktu</field>
+            <field name="name">Ketepatan Waktu Pengiriman</field>
             <field name="code">C3</field>
             <field name="criterion_type">benefit</field>
             <field name="sequence">30</field>
-            <field name="description">Penilaian ketepatan waktu pengiriman (on-time delivery rate).
-Skala 1-100: Semakin tinggi skor = semakin baik</field>
+            <field name="description">Penilaian on-time delivery rate (persentase pengiriman tepat waktu sesuai jadwal proyek konstruksi).
+Skala 1-100: Semakin tinggi skor = semakin sering tepat waktu</field>
         </record>
 
-        <record id="criterion_responsiveness" model="scoring.criterion">
-            <field name="name">Layanan</field>
+        <record id="criterion_capacity" model="scoring.criterion">
+            <field name="name">Kapasitas &amp; Ketersediaan Stok</field>
             <field name="code">C4</field>
             <field name="criterion_type">benefit</field>
             <field name="sequence">40</field>
-            <field name="description">Penilaian kecepatan respons dan penanganan keluhan.
-Skala 1-100: Semakin tinggi skor = semakin baik</field>
+            <field name="description">Penilaian kemampuan pemasok menyediakan material dalam volume besar untuk mobilisasi proyek (kapasitas produksi, ketersediaan stok, fleksibilitas pemenuhan lonjakan permintaan).
+Skala 1-100: Semakin tinggi skor = semakin tinggi kapasitas suplai</field>
         </record>
 
-        <record id="package_default_4c" model="scoring.package">
-            <field name="name">Paket Standar (4 Kriteria)</field>
+        <record id="criterion_responsiveness" model="scoring.criterion">
+            <field name="name">Responsivitas Layanan</field>
+            <field name="code">C5</field>
+            <field name="criterion_type">benefit</field>
+            <field name="sequence">50</field>
+            <field name="description">Penilaian kecepatan respons pemasok terhadap pertanyaan, komplain, dan permintaan after-sales (mis. penanganan defect material, klarifikasi teknis).
+Skala 1-100: Semakin tinggi skor = semakin responsif</field>
+        </record>
+
+        <record id="package_default_5c" model="scoring.package">
+            <field name="name">Paket Standar (5 Kriteria) — Konstruksi</field>
             <field name="line_ids" eval="[
-                (0, 0, {'criterion_id': ref('criterion_quality'), 'weight': 35.0}),
+                (0, 0, {'criterion_id': ref('criterion_quality'), 'weight': 30.0}),
                 (0, 0, {'criterion_id': ref('criterion_price'), 'weight': 25.0}),
                 (0, 0, {'criterion_id': ref('criterion_delivery'), 'weight': 25.0}),
-                (0, 0, {'criterion_id': ref('criterion_responsiveness'), 'weight': 15.0})
+                (0, 0, {'criterion_id': ref('criterion_capacity'), 'weight': 12.0}),
+                (0, 0, {'criterion_id': ref('criterion_responsiveness'), 'weight': 8.0})
             ]"/>
         </record>
 
