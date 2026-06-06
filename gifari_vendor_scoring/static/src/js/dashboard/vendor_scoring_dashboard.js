@@ -2,13 +2,19 @@
 
 import { Component, useState, onWillStart, onMounted, onWillUnmount, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { loadBundle } from "@web/core/assets";
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 
+// Data-Dense Dashboard palette: corporate navy/blue + amber highlight.
 const CHART_COLORS = [
-    "#7c3aed", "#2563eb", "#059669", "#d97706", "#dc2626",
-    "#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+    "#1E40AF", "#3B82F6", "#0EA5E9", "#0D9488", "#F59E0B",
+    "#6366F1", "#2563EB", "#06B6D4", "#10B981", "#D97706",
 ];
+const COLOR_PRIMARY = "#1E40AF";
+const COLOR_MUTED = "#94A3B8";
+const CHART_FONT_FAMILY =
+    "'Fira Sans', 'Segoe UI', system-ui, -apple-system, sans-serif";
 
 export class VendorScoringDashboard extends Component {
     static template = "gifari_vendor_scoring.Dashboard";
@@ -18,8 +24,10 @@ export class VendorScoringDashboard extends Component {
         this.action = useService("action");
         this.comparisonRef = useRef("comparisonCanvas");
         this.trendRef = useRef("trendCanvas");
+        this.radarRef = useRef("radarCanvas");
 
         this.chartInstances = [];
+        this.chartsAvailable = false;
 
         this.state = useState({
             loading: true,
@@ -30,9 +38,23 @@ export class VendorScoringDashboard extends Component {
             period_trend: [],
             comparison_data: [],
             criteria_names: [],
+            available_periods: [],
+            focus_period_id: null,
         });
 
         onWillStart(async () => {
+            // Chart.js ships in a lazy Odoo bundle; load it before the first
+            // render so the global `Chart` constructor is available.
+            try {
+                await loadBundle("web.chartjs_lib");
+                this.chartsAvailable = typeof Chart !== "undefined";
+                if (this.chartsAvailable) {
+                    Chart.defaults.font.family = CHART_FONT_FAMILY;
+                    Chart.defaults.color = "#475569";
+                }
+            } catch (chartLibError) {
+                console.error("Chart.js bundle failed to load:", chartLibError);
+            }
             await this.loadDashboardData();
         });
 
@@ -45,16 +67,23 @@ export class VendorScoringDashboard extends Component {
         });
     }
 
-    async loadDashboardData() {
+    async loadDashboardData(options = {}) {
         try {
             const dashboardPayload = await this.orm.call(
-                "scoring.period", "get_dashboard_data", []
+                "scoring.period", "get_dashboard_data", [options]
             );
             Object.assign(this.state, dashboardPayload);
         } catch (loadError) {
             console.error("Dashboard load error:", loadError);
         }
         this.state.loading = false;
+    }
+
+    async onFocusPeriodChange(changeEvent) {
+        const selectedPeriodId = parseInt(changeEvent.target.value, 10);
+        this.state.loading = true;
+        await this.loadDashboardData({ focus_period_id: selectedPeriodId });
+        this.renderCharts();
     }
 
     destroyCharts() {
@@ -68,6 +97,7 @@ export class VendorScoringDashboard extends Component {
         if (typeof Chart === "undefined") return;
         this.destroyCharts();
         this.renderComparisonChart();
+        this.renderRadarChart();
         this.renderTrendChart();
     }
 
@@ -110,6 +140,47 @@ export class VendorScoringDashboard extends Component {
         this.chartInstances.push(chartInstance);
     }
 
+    renderRadarChart() {
+        const canvas = this.radarRef.el;
+        if (!canvas || !this.state.comparison_data.length || !this.state.criteria_names.length) {
+            return;
+        }
+
+        // Profil multi-kriteria untuk maksimum 3 vendor teratas.
+        const topVendors = this.state.comparison_data.slice(0, 3);
+        const datasets = topVendors.map((vendor, vendorIdx) => {
+            const baseColor = CHART_COLORS[vendorIdx % CHART_COLORS.length];
+            return {
+                label: vendor.partner_name,
+                data: this.state.criteria_names.map(
+                    (criterionName) => vendor.criteria_scores[criterionName] || 0
+                ),
+                borderColor: baseColor,
+                backgroundColor: `${baseColor}33`,
+                borderWidth: 2,
+                pointBackgroundColor: baseColor,
+                pointRadius: 3,
+            };
+        });
+
+        const chartInstance = new Chart(canvas, {
+            type: "radar",
+            data: { labels: this.state.criteria_names, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: _t("Profil Kriteria Top 3 Vendor"), font: { size: 14 } },
+                    legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } },
+                },
+                scales: {
+                    r: { beginAtZero: true, ticks: { backdropColor: "transparent" } },
+                },
+            },
+        });
+        this.chartInstances.push(chartInstance);
+    }
+
     renderTrendChart() {
         const canvas = this.trendRef.el;
         if (!canvas || !this.state.period_trend.length) return;
@@ -124,22 +195,22 @@ export class VendorScoringDashboard extends Component {
                     {
                         label: _t("Skor Tertinggi"),
                         data: this.state.period_trend.map((period) => period.top_score),
-                        borderColor: "#7c3aed",
-                        backgroundColor: "rgba(124, 58, 237, 0.1)",
+                        borderColor: COLOR_PRIMARY,
+                        backgroundColor: "rgba(30, 64, 175, 0.1)",
                         fill: true,
                         tension: 0.3,
                         pointRadius: 4,
-                        pointBackgroundColor: "#7c3aed",
+                        pointBackgroundColor: COLOR_PRIMARY,
                     },
                     {
                         label: _t("Rata-rata"),
                         data: this.state.period_trend.map((period) => period.avg_score),
-                        borderColor: "#9ca3af",
+                        borderColor: COLOR_MUTED,
                         borderDash: [5, 5],
                         fill: false,
                         tension: 0.3,
                         pointRadius: 3,
-                        pointBackgroundColor: "#9ca3af",
+                        pointBackgroundColor: COLOR_MUTED,
                     },
                 ],
             },

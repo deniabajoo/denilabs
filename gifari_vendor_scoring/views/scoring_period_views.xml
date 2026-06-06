@@ -74,7 +74,7 @@
                         </div>
                         <div t-if="record.top_vendor_name.value" class="mb-1">
                             <span class="badge rounded-pill text-bg-warning">
-                                🏆 <field name="top_vendor_name"/>
+                                <i class="fa fa-trophy me-1" title="Vendor Terbaik" aria-hidden="true"/><field name="top_vendor_name"/>
                             </span>
                         </div>
                         <div class="mt-2">
@@ -118,22 +118,28 @@
                             string="Mulai Penilaian"
                             type="object"
                             class="btn-primary"
-                            invisible="state != 'draft'"
+                            invisible="state != 'draft' or not is_ready_to_start"
                             confirm="Memulai penilaian untuk pemasok yang dipilih. Lanjutkan?"/>
+                    <!-- Placeholder non-aktif: kesiapan periode belum terpenuhi -->
+                    <button string="Mulai Penilaian"
+                            class="btn-secondary"
+                            disabled="1"
+                            invisible="state != 'draft' or is_ready_to_start"
+                            title="Lengkapi kesiapan periode dulu: tanggal terisi, bobot kriteria 100%, dan minimal 2 pemasok dipilih."/>
                     <button name="action_calculate_saw"
-                            string="🔢 Hitung SAW"
+                            string="Hitung SAW"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'scoring'"/>
                     <button name="action_validate"
-                            string="✅ Validasi"
+                            string="Validasi"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'calculated'"
                             groups="gifari_vendor_scoring.group_vendor_scoring_validator"
                             confirm="Memvalidasi hasil evaluasi. Data tidak dapat diubah setelah validasi. Lanjutkan?"/>
                     <button name="action_back_to_scoring"
-                            string="⬅ Kembali ke Penilaian"
+                            string="Kembali ke Penilaian"
                             type="object"
                             invisible="state != 'calculated'"/>
                     <button name="action_cancel"
@@ -184,12 +190,46 @@
                             </div>
                         </button>
                     </div>
-                    <!-- Banner warning jika bobot tidak valid -->
-                    <div class="alert alert-warning text-center" role="alert"
+                    <!-- Pita panduan per-status: selalu menjelaskan langkah berikutnya -->
+                    <div class="alert alert-info d-flex align-items-center gap-2" role="status"
+                         invisible="state != 'draft'">
+                        <i class="fa fa-info-circle" title="Panduan" aria-hidden="true"/>
+                        <span>Atur periode di bawah — isi tanggal, atur bobot kriteria hingga 100%,
+                            dan pilih pemasok — lalu klik <strong>Mulai Penilaian</strong>.</span>
+                    </div>
+                    <div class="alert alert-info d-flex align-items-center gap-2" role="status"
+                         invisible="state != 'scoring'">
+                        <i class="fa fa-pencil-square-o" title="Panduan" aria-hidden="true"/>
+                        <span>Lengkapi semua skor pada tab <strong>Matrix Penilaian</strong>,
+                            lalu klik <strong>Hitung SAW</strong> untuk menghasilkan peringkat.</span>
+                    </div>
+                    <div class="alert alert-info d-flex align-items-center gap-2" role="status"
+                         invisible="state != 'calculated'">
+                        <i class="fa fa-trophy" title="Panduan" aria-hidden="true"/>
+                        <span>Tinjau tab <strong>Hasil Ranking</strong>, lalu klik
+                            <strong>Validasi</strong> untuk mengunci hasil evaluasi.</span>
+                    </div>
+                    <div class="alert alert-success d-flex align-items-center gap-2" role="status"
+                         invisible="state != 'validated'">
+                        <i class="fa fa-lock" title="Terkunci" aria-hidden="true"/>
+                        <span>Periode ini telah <strong>tervalidasi</strong> dan dikunci.</span>
+                    </div>
+
+                    <!-- Banner: bobot belum 100% -->
+                    <div class="alert alert-warning d-flex align-items-center gap-2" role="alert"
                          invisible="is_weight_valid or not period_criterion_ids">
-                        <strong>⚠ Total bobot kriteria saat ini:
-                            <field name="total_weight" class="d-inline"/>%
-                        </strong> — harus tepat 100% sebelum memulai penilaian.
+                        <i class="fa fa-exclamation-triangle" title="Peringatan" aria-hidden="true"/>
+                        <span>
+                            <strong>Total bobot kriteria saat ini:
+                                <field name="total_weight" class="d-inline"/>%
+                            </strong> — harus tepat 100% sebelum memulai penilaian.
+                        </span>
+                    </div>
+                    <!-- Banner: bobot sudah valid (umpan balik positif) -->
+                    <div class="alert alert-success d-flex align-items-center gap-2" role="status"
+                         invisible="not is_weight_valid or not period_criterion_ids or state != 'draft'">
+                        <i class="fa fa-check-circle" title="Valid" aria-hidden="true"/>
+                        <span><strong>Bobot kriteria sudah seimbang (100%).</strong> Periode siap untuk dinilai.</span>
                     </div>
 
                     <div class="oe_title">
@@ -208,28 +248,91 @@
                             <field name="evaluator_id" widget="many2one_avatar_user"/>
                             <field name="company_id" invisible="1"/>
                             <field name="is_weight_valid" invisible="1"/>
+                            <field name="is_ready_to_start" invisible="1"/>
                         </group>
-                        <group string="Kriteria Evaluasi">
-                            <field name="package_id" options="{'no_create': True}" readonly="state != 'draft'"/>
-                            <field name="period_criterion_ids" nolabel="1" readonly="state != 'draft'" colspan="2">
-                                <list string="Kriteria &amp; Bobot" editable="bottom">
-                                    <field name="criterion_id" options="{'no_create': True}"/>
-                                    <field name="criterion_type" readonly="1" force_save="1"/>
-                                    <field name="weight" widget="float"/>
-                                </list>
-                            </field>
+                        <group string="Paket Kriteria">
+                            <field name="package_id" options="{'no_create': True}" readonly="state != 'draft'"
+                                   placeholder="Pilih paket untuk mengisi kriteria otomatis…"/>
+                            <field name="criterion_count" invisible="1"/>
+                            <field name="partner_selected_count" invisible="1"/>
                         </group>
                     </group>
-                    
-                    <group string="Pemasok yang Dievaluasi" invisible="state != 'draft'">
-                        <field name="partner_ids" nolabel="1">
-                            <list string="Pemasok">
-                                <field name="name"/>
-                                <field name="city" optional="show"/>
-                                <field name="phone" optional="hide"/>
-                            </list>
-                        </field>
-                    </group>
+
+                    <!-- Daftar kesiapan: kriteria go/no-go sebelum Mulai Penilaian -->
+                    <div class="o_horizontal_separator mt-3 mb-2 text-uppercase fw-bolder small"
+                         invisible="state != 'draft'">Kesiapan Periode</div>
+                    <div class="vs-period__readiness d-flex flex-column gap-1 mb-2"
+                         invisible="state != 'draft'">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-check-circle text-success" title="Terpenuhi" aria-hidden="true"
+                               invisible="not date_from or not date_to"/>
+                            <i class="fa fa-circle-o text-muted" title="Belum terpenuhi" aria-hidden="true"
+                               invisible="date_from and date_to"/>
+                            <span>Tanggal periode sudah terisi</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-check-circle text-success" title="Terpenuhi" aria-hidden="true"
+                               invisible="not is_weight_valid"/>
+                            <i class="fa fa-circle-o text-muted" title="Belum terpenuhi" aria-hidden="true"
+                               invisible="is_weight_valid"/>
+                            <span>Total bobot kriteria tepat 100%</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-check-circle text-success" title="Terpenuhi" aria-hidden="true"
+                               invisible="partner_selected_count &lt; 2"/>
+                            <i class="fa fa-circle-o text-muted" title="Belum terpenuhi" aria-hidden="true"
+                               invisible="partner_selected_count &gt;= 2"/>
+                            <span>Minimal 2 pemasok dipilih</span>
+                        </div>
+                    </div>
+
+                    <!-- Kriteria Evaluasi (lebar penuh) -->
+                    <div class="o_horizontal_separator mt-3 mb-2 d-flex align-items-center gap-2 text-uppercase fw-bolder small"
+                         invisible="state != 'draft'">
+                        <span>Kriteria Evaluasi</span>
+                        <span class="badge text-bg-secondary rounded-pill"
+                              invisible="not period_criterion_ids"><field name="criterion_count" class="d-inline"/></span>
+                    </div>
+                    <field name="period_criterion_ids" nolabel="1" readonly="state != 'draft'"
+                           invisible="state != 'draft'">
+                        <list string="Kriteria &amp; Bobot" editable="bottom">
+                            <field name="criterion_id" options="{'no_create': True}"/>
+                            <field name="criterion_type" readonly="1" force_save="1" widget="badge"
+                                   decoration-success="criterion_type == 'benefit'"
+                                   decoration-danger="criterion_type == 'cost'"/>
+                            <field name="weight" widget="float" sum="Total Bobot" class="vs-num"/>
+                        </list>
+                    </field>
+                    <div class="alert alert-light text-muted d-flex align-items-center gap-2 border"
+                         role="status"
+                         invisible="state != 'draft' or period_criterion_ids">
+                        <i class="fa fa-lightbulb-o" title="Petunjuk" aria-hidden="true"/>
+                        <span>Belum ada kriteria. Pilih <strong>Paket Kriteria</strong> di atas untuk mengisi otomatis,
+                            atau klik <strong>Add a line</strong> untuk menambah manual.</span>
+                    </div>
+
+                    <!-- Pemasok yang Dievaluasi (lebar penuh) -->
+                    <div class="o_horizontal_separator mt-4 mb-2 d-flex align-items-center gap-2 text-uppercase fw-bolder small"
+                         invisible="state != 'draft'">
+                        <span>Pemasok yang Dievaluasi</span>
+                        <span class="badge text-bg-secondary rounded-pill"
+                              invisible="not partner_ids"><field name="partner_selected_count" class="d-inline"/></span>
+                    </div>
+                    <field name="partner_ids" nolabel="1" invisible="state != 'draft'"
+                           context="{'search_default_group_by_vendor_category': 1}">
+                        <list string="Pemasok">
+                            <field name="vendor_category" widget="badge" optional="show"/>
+                            <field name="name"/>
+                            <field name="city" optional="show"/>
+                            <field name="phone" optional="hide"/>
+                        </list>
+                    </field>
+                    <div class="alert alert-light text-muted d-flex align-items-center gap-2 border"
+                         role="status"
+                         invisible="state != 'draft' or partner_ids">
+                        <i class="fa fa-lightbulb-o" title="Petunjuk" aria-hidden="true"/>
+                        <span>Belum ada pemasok. Klik <strong>Add a line</strong> untuk memilih pemasok yang akan dievaluasi.</span>
+                    </div>
 
                     <!-- Mode Active (Scoring/Calculated/Validated): Slim Header -->
                     <group invisible="state == 'draft'">
@@ -248,13 +351,15 @@
 
                     <notebook>
                         <!-- Tab 1: Matrix Scoring (OWL) - Fokus utama saat eksekusi -->
-                        <page string="📊 Matrix Penilaian" name="page_matrix"
+                        <page string="Matrix Penilaian" name="page_matrix"
+                              autofocus="autofocus"
                               invisible="state != 'scoring'">
                             <widget name="scoring_matrix"/>
                         </page>
 
                         <!-- Tab 2: Hasil Ranking - Fokus utama setelah terhitung -->
-                        <page string="🏆 Hasil Ranking" name="page_ranking"
+                        <page string="Hasil Ranking" name="page_ranking"
+                              autofocus="autofocus"
                               invisible="state not in ('calculated', 'validated')">
                             <field name="vendor_score_ids" nolabel="1" readonly="1">
                                 <list string="Perangkingan Pemasok"
@@ -267,6 +372,7 @@
                                            decoration-bf="rank &lt;= 3"/>
                                     <field name="partner_id" decoration-bf="rank == 1"/>
                                     <field name="final_score" widget="float"
+                                           class="vs-num"
                                            decoration-bf="rank == 1"/>
                                     <field name="is_recommended" widget="boolean_toggle"/>
                                 </list>
@@ -274,7 +380,7 @@
                         </page>
 
                         <!-- Tab 3: Audit Skor Detail - Hanya jika perlu audit angka mentah -->
-                        <page string="📋 Audit Skor Detail" name="page_scores"
+                        <page string="Audit Skor Detail" name="page_scores"
                               invisible="state not in ('calculated', 'validated')">
                             <field name="vendor_score_ids" nolabel="1"
                                    readonly="state in ('calculated', 'validated')">
@@ -288,13 +394,14 @@
                                     <field name="score_line_ids" widget="many2many_tags"
                                            invisible="1"/>
                                     <field name="final_score" readonly="1"
+                                           class="vs-num"
                                            decoration-bf="is_recommended"
                                            optional="show"/>
                                     <field name="is_recommended" readonly="1"
                                            widget="boolean_toggle"
                                            optional="show"/>
                                     <button name="action_open_score_detail"
-                                            string="📋 Rincian Kalkulasi"
+                                            string="Rincian Kalkulasi"
                                             type="object"
                                             icon="fa-list-alt"/>
                                 </list>
@@ -302,7 +409,7 @@
                         </page>
 
                         <!-- Tab 4: Catatan - Selalu terlihat -->
-                        <page string="📝 Catatan" name="page_notes">
+                        <page string="Catatan" name="page_notes">
                             <field name="notes" nolabel="1"
                                    placeholder="Catatan periode ini..."
                                    readonly="state == 'validated'"/>
@@ -410,7 +517,7 @@
                             <field name="rank" readonly="1"/>
                         </group>
                         <group>
-                            <field name="final_score" readonly="1"/>
+                            <field name="final_score" readonly="1" class="vs-num"/>
                             <field name="is_recommended" readonly="1" widget="boolean_toggle"/>
                         </group>
                     </group>
@@ -420,10 +527,10 @@
                             <field name="criterion_type" readonly="1" widget="badge"
                                    decoration-success="criterion_type == 'benefit'"
                                    decoration-danger="criterion_type == 'cost'"/>
-                            <field name="criterion_weight" readonly="1"/>
-                            <field name="raw_score"/>
-                            <field name="normalized_score" readonly="1"/>
-                            <field name="weighted_score" readonly="1"/>
+                            <field name="criterion_weight" readonly="1" class="vs-num"/>
+                            <field name="raw_score" class="vs-num"/>
+                            <field name="normalized_score" readonly="1" class="vs-num"/>
+                            <field name="weighted_score" readonly="1" class="vs-num"/>
                         </list>
                     </field>
                 </sheet>

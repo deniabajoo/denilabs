@@ -89,6 +89,19 @@ class ScoringPeriod(models.Model):
         string="Jumlah Pemasok",
         compute='_compute_vendor_count',
     )
+    criterion_count = fields.Integer(
+        string="Jumlah Kriteria",
+        compute='_compute_setup_counts',
+    )
+    partner_selected_count = fields.Integer(
+        string="Jumlah Pemasok Dipilih",
+        compute='_compute_setup_counts',
+    )
+    is_ready_to_start = fields.Boolean(
+        string="Siap Dinilai",
+        compute='_compute_is_ready_to_start',
+        help="Benar jika tanggal terisi, bobot kriteria 100%, dan minimal 2 pemasok dipilih.",
+    )
     total_weight = fields.Float(
         string="Total Bobot (%)",
         compute='_compute_total_weight',
@@ -136,6 +149,22 @@ class ScoringPeriod(models.Model):
         for period in self:
             period.vendor_count = len(period.vendor_score_ids)
 
+    @api.depends('period_criterion_ids', 'partner_ids')
+    def _compute_setup_counts(self):
+        for period in self:
+            period.criterion_count = len(period.period_criterion_ids)
+            period.partner_selected_count = len(period.partner_ids)
+
+    @api.depends('date_from', 'date_to', 'is_weight_valid', 'partner_ids')
+    def _compute_is_ready_to_start(self):
+        for period in self:
+            period.is_ready_to_start = bool(
+                period.date_from
+                and period.date_to
+                and period.is_weight_valid
+                and len(period.partner_ids) >= 2
+            )
+
     @api.onchange('package_id')
     def _onchange_package_id(self):
         if not self.package_id:
@@ -171,6 +200,15 @@ class ScoringPeriod(models.Model):
                     "Tanggal akhir harus lebih besar atau sama dengan tanggal mulai."
                 )
 
+    @api.constrains('period_criterion_ids')
+    def _check_total_weight(self):
+        for period in self:
+            if period.period_criterion_ids and not period.is_weight_valid:
+                raise ValidationError(
+                    "Total bobot kriteria harus tepat 100%%. Saat ini: %.2f%%."
+                    % period.total_weight
+                )
+
     @api.depends('vendor_score_ids.score_line_ids.raw_score')
     def _compute_scoring_progress(self):
         for period in self:
@@ -191,6 +229,24 @@ class ScoringPeriod(models.Model):
             period.top_score_value = top_vendor_score.final_score if top_vendor_score else 0.0
             period.top_vendor_id = top_vendor_score.partner_id if top_vendor_score else False
             period.top_vendor_name = top_vendor_score.partner_id.name if top_vendor_score else ''
+
+    def _reload_form_view(self):
+        """Buka ulang record ini di form view.
+
+        Tujuannya mereset 'memory' tab notebook di sisi klien sehingga
+        atribut autofocus pada <page> kembali berlaku — mis. setelah
+        'Mulai Penilaian' tab default menjadi Matrix Penilaian (bukan
+        tab terakhir yang dilihat, Catatan).
+        """
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'current',
+        }
 
     def action_start_scoring(self):
         """Mulai proses penilaian: generate vendor score lines dari partner_ids."""
@@ -233,6 +289,8 @@ class ScoringPeriod(models.Model):
 
         self._schedule_activity_scoring()
         self._send_mail_template('gifari_vendor_scoring.mail_template_period_started')
+
+        return self._reload_form_view()
 
     def action_calculate_saw(self):
         """Kalkulasi SAW: Normalisasi → Pembobotan → Perangkingan."""
@@ -310,6 +368,8 @@ class ScoringPeriod(models.Model):
         self._schedule_activity_validation()
         self._send_mail_template('gifari_vendor_scoring.mail_template_period_calculated')
 
+        return self._reload_form_view()
+
     def action_validate(self):
         """Validasi hasil evaluasi oleh manager."""
         self.ensure_one()
@@ -326,6 +386,7 @@ class ScoringPeriod(models.Model):
         """Kembali ke tahap penilaian untuk revisi skor."""
         self.ensure_one()
         self.write({'state': 'scoring'})
+        return self._reload_form_view()
 
     def action_cancel(self):
         """Batalkan periode evaluasi."""
@@ -426,15 +487,62 @@ class ScoringPeriod(models.Model):
         score_line.write({'raw_score': new_score})
         return {'success': True, 'line_id': score_line_id, 'new_score': new_score}
 
+    def bulk_fill_empty_scores(self, value):
+        """RPC endpoint: isi semua sel kosong dengan satu nilai (input cepat).
+
+        Hanya mengisi sel yang masih kosong (raw_score <= 0) dan hanya jika
+        nilai valid untuk tipe kriterianya (Benefit 1-100, Cost > 0). Sel yang
+        tidak valid untuk tipenya dilewati. Mengembalikan jumlah sel terisi.
+        """
+        self.ensure_one()
+        if self.state != 'scoring':
+            raise UserError("Skor hanya bisa diisi saat status Penilaian.")
+
+        parsed_value = float(value or 0)
+        criterion_type_by_id = {
+            period_criterion.criterion_id.id: period_criterion.criterion_type
+            for period_criterion in self.period_criterion_ids
+        }
+
+        filled_count = 0
+        for vendor_score in self.vendor_score_ids:
+            for score_line in vendor_score.score_line_ids:
+                if score_line.raw_score > 0:
+                    continue
+                criterion_type = criterion_type_by_id.get(score_line.criterion_id.id)
+                if criterion_type == 'benefit' and not (1.0 <= parsed_value <= 100.0):
+                    continue
+                if criterion_type == 'cost' and parsed_value <= 0:
+                    continue
+                score_line.raw_score = parsed_value
+                filled_count += 1
+
+        return {'filled_count': filled_count}
+
     @api.model
-    def get_dashboard_data(self):
-        """RPC endpoint: return structured dashboard data for OWL component."""
+    def get_dashboard_data(self, options=None):
+        """RPC endpoint: return structured dashboard data for OWL component.
+
+        options (optional dict):
+            - focus_period_id: id periode tervalidasi yang dijadikan fokus
+              leaderboard/perbandingan/radar. Bila tidak ada, pakai yang terbaru.
+        """
+        options = options or {}
         company_id = self.env.company.id
 
-        latest_validated = self.search([
+        available_periods = self.search([
             ('state', '=', 'validated'),
             ('company_id', '=', company_id),
-        ], order='date_to desc', limit=1)
+        ], order='date_to desc')
+
+        focus_period_id = options.get('focus_period_id')
+        latest_validated = self.browse()
+        if focus_period_id:
+            latest_validated = available_periods.filtered(
+                lambda period: period.id == focus_period_id
+            )[:1]
+        if not latest_validated:
+            latest_validated = available_periods[:1]
 
         # Periode aktif: Prioritaskan yang sedang proses penilaian/kalkulasi, 
         # jika tidak ada, ambil periode tervalidasi yang masih berjalan (date_to >= hari ini)
@@ -527,6 +635,11 @@ class ScoringPeriod(models.Model):
             'period_trend': period_trend,
             'comparison_data': comparison_chart_vendors,
             'criteria_names': criteria_names,
+            'available_periods': [
+                {'id': period.id, 'name': period.name}
+                for period in available_periods
+            ],
+            'focus_period_id': latest_validated.id if latest_validated else None,
         }
 
     # ------------------------------------------------------

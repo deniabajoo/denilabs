@@ -1,69 +1,166 @@
-/* Vendor Scoring Dashboard Styles */
+/* Vendor Scoring Dashboard Styles — Data-Dense (navy/amber) */
+/* NOTE: never use `@import url(...)` for web fonts here — a remote @import in a
+   bundled backend SCSS file breaks the whole web.assets_web stylesheet. We rely
+   on system font stacks instead (tabular numerals still apply). */
+
+$vs-navy: #1e3a8a;
+$vs-primary: #1e40af;
+$vs-amber: #f59e0b;
+$vs-bg: #f8fafc;
+$vs-border: #e2e8f0;
+$vs-muted: #475569;
 
 .vs-dashboard {
-    background-color: var(--o-webclient-background-color, #f8f9fa);
+    background-color: var(--o-webclient-background-color, #{$vs-bg});
     min-height: 100vh;
+    font-family: 'Fira Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+    /* Tabular numerals for every metric — the "precise/data" mood. */
+    .vs-dashboard__metric {
+        font-family: 'Fira Code', 'SF Mono', ui-monospace, monospace;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+    }
 }
 
 .vs-dashboard__header h2 {
-    color: #1e1b4b;
+    color: $vs-navy;
     font-weight: 700;
+    letter-spacing: -0.01em;
 }
 
-/* KPI Cards */
+.vs-dashboard__period-filter .form-select {
+    min-width: 220px;
+}
+
+/* KPI Cards — accent stripe + lift on hover */
 .vs-dashboard__kpi-card {
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 4px;
+        background: $vs-primary;
+        opacity: 0.85;
+    }
+
+    &.border-warning::before {
+        background: $vs-amber;
+    }
 
     &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+}
+
+.vs-dashboard__kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(30, 64, 175, 0.08);
+
+    .text-warning {
+        filter: none;
     }
 }
 
 .vs-dashboard__kpi-label {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6b7280;
+    letter-spacing: 0.06em;
+    color: $vs-muted;
     font-weight: 600;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 /* Cards */
 .vs-dashboard .card {
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e2e8f0;
 }
 
 .vs-dashboard .card-header {
     background-color: transparent;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid #eef2f7;
     padding: 0.75rem 1rem;
+    color: #1e3a8a;
 }
 
-/* Chart containers */
+/* Chart containers — responsive height */
 .vs-dashboard__chart-container {
     position: relative;
     height: 320px;
 }
 
-/* Leaderboard */
+@media (max-width: 768px) {
+    .vs-dashboard__chart-container {
+        height: 260px;
+    }
+    .vs-dashboard__content {
+        font-size: 16px;
+    }
+    .vs-dashboard__period-filter .form-select {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+/* Leaderboard — medal accents on the podium (top 3) */
 .vs-dashboard .list-group-item {
-    border-left: none;
+    border-left: 3px solid transparent;
     border-right: none;
-    padding: 0.65rem 1rem;
-    transition: background-color 0.15s;
+    padding: 0.7rem 1rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 
     &:hover {
-        background-color: #f9fafb;
+        background-color: #f1f5f9;
     }
 
-    &:first-child {
-        background: linear-gradient(135deg, #fefce8, #fff);
+    .vs-leaderboard__score {
+        font-family: 'Fira Code', ui-monospace, monospace;
+        font-variant-numeric: tabular-nums;
     }
+
+    &:nth-child(1) {
+        background: linear-gradient(135deg, #fffbeb, #fff);
+        border-left-color: #f59e0b; /* gold */
+    }
+
+    &:nth-child(2) {
+        border-left-color: #94a3b8; /* silver */
+    }
+
+    &:nth-child(3) {
+        border-left-color: #b45309; /* bronze */
+    }
+}
+
+/* Card header accent */
+.vs-dashboard .card-header .vs-dashboard__section-icon {
+    color: $vs-primary;
+}
+
+/* Shared numeric utility — tabular figures for aligned scores/weights across
+   the Vendor Scoring forms & lists (consistent with the dashboard metrics).
+   Fira Code is not bundled, so it gracefully falls back to a monospace stack. */
+.vs-num,
+.vs-num .o_field_widget,
+.vs-num input {
+    font-family: 'Fira Code', ui-monospace, 'SF Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }
 
 /* Loading */
@@ -73,4 +170,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .vs-dashboard__kpi-card,
+    .vs-dashboard .list-group-item {
+        transition: none;
+    }
+    .vs-dashboard__kpi-card:hover {
+        transform: none;
+    }
 }

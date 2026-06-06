@@ -265,14 +265,18 @@ class ScoringPeriodDemoGenerator(models.Model):
         partner_model = self.env['res.partner']
         vendor_records = partner_model
         for vendor_def in VENDOR_MASTER:
+            vendor_category = vendor_def.get('category')
             vendor_vals = {
                 key: value for key, value in vendor_def.items()
                 if key != 'category'
             }
+            vendor_vals['vendor_category'] = vendor_category
             existing = partner_model.search([
                 ('name', '=', vendor_def['name']),
             ], limit=1)
             if existing:
+                if vendor_category and not existing.vendor_category:
+                    existing.vendor_category = vendor_category
                 vendor_records |= existing
             else:
                 vendor_records |= partner_model.create({

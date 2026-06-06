@@ -94,14 +94,14 @@
     }
 
     &:focus {
-        border-color: #7c3aed;
-        box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+        border-color: #1e40af;
+        box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.2);
         outline: none;
         background-color: #fff;
     }
 
     &:hover:not(:focus):not([readonly]) {
-        border-color: #a78bfa;
+        border-color: #60a5fa;
     }
 
     &[readonly] {
@@ -127,6 +127,30 @@
     animation: scoring-matrix-pulse 0.6s ease-in-out;
 }
 
+/* Sel di luar rentang (validasi langsung) */
+.scoring-matrix__cell-input--invalid {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #b91c1c;
+
+    &:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+    }
+}
+
+/* Bulk fill toolbar */
+.scoring-matrix__bulkbar {
+    padding: 0.4rem 0.6rem;
+    background-color: var(--o-view-background-color, #f8f9fa);
+    border: 1px solid var(--o-border-color, #dee2e6);
+    border-radius: 8px;
+}
+
+.scoring-matrix__bulk-input {
+    width: 110px;
+}
+
 @keyframes scoring-matrix-pulse {
     0% { background-color: #e0f2fe; }
     50% { background-color: #bae6fd; }
@@ -144,6 +168,25 @@
     background-color: var(--o-view-background-color, #f8f9fa);
     border-top: 2px solid var(--o-border-color, #dee2e6) !important;
     padding: 0.4rem !important;
+}
+
+/* Nilai Acuan SAW row */
+.scoring-matrix__ref-row td {
+    border-top: 1px dashed var(--o-border-color, #dee2e6) !important;
+}
+
+.scoring-matrix__ref-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+}
+
+.scoring-matrix__ref-vendor {
+    max-width: 130px;
+    margin: 0 auto;
+    font-size: 0.72rem;
+    color: #475569;
 }
 
 /* Progress bar global */

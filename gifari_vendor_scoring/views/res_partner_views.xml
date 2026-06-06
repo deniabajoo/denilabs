@@ -18,6 +18,30 @@
                     <field name="vendor_score_count" string="Riwayat Skor" widget="statinfo"/>
                 </button>
             </xpath>
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="vendor_category"
+                       invisible="supplier_rank == 0 and company_type != 'company'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- res.partner: Search — Filter & Group By Kategori Vendor -->
+    <!-- ============================================================ -->
+    <record id="res_partner_search_inherit_vendor_scoring" model="ir.ui.view">
+        <field name="name">res.partner.search.inherit.vendor.scoring</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="filter_has_vendor_category"
+                        string="Punya Kategori Vendor"
+                        domain="[('vendor_category', '!=', False)]"/>
+                <filter name="group_by_vendor_category"
+                        string="Kategori Vendor"
+                        context="{'group_by': 'vendor_category'}"/>
+            </xpath>
         </field>
     </record>
 

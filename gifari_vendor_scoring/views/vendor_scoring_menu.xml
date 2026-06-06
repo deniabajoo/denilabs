@@ -2,13 +2,14 @@
 <odoo>
 
     <!-- ============================================================ -->
-    <!-- Menu Structure: Purchases → Vendor Scoring -->
+    <!-- Menu Structure: Vendor Scoring (top-level application) -->
     <!-- ============================================================ -->
 
-    <!-- Root menu under Purchase -->
+    <!-- Root menu = standalone app in the main apps switcher (no parent).
+         web_icon makes it show with the module icon in the apps grid. -->
     <menuitem id="menu_vendor_scoring_root"
               name="Vendor Scoring"
-              parent="purchase.menu_purchase_root"
+              web_icon="gifari_vendor_scoring,static/description/icon.png"
               sequence="30"/>
 
     <!-- Dashboard (menu utama) -->
@@ -31,6 +32,13 @@
               parent="menu_vendor_scoring_root"
               action="action_vendor_score"
               sequence="20"/>
+
+    <!-- Vendor (daftar pemasok) di dalam app Vendor Scoring -->
+    <menuitem id="menu_vendor_scoring_vendors"
+              name="Vendor"
+              parent="menu_vendor_scoring_root"
+              action="account.res_partner_action_supplier"
+              sequence="30"/>
 
     <!-- Konfigurasi -->
     <menuitem id="menu_vendor_scoring_config"

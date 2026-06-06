@@ -32,9 +32,33 @@
                     </div>
                 </div>
 
+                <!-- Bulk fill helper (input cepat) -->
+                <div t-if="!isReadonly and state.vendors.length > 0"
+                     class="scoring-matrix__bulkbar d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <label for="vs_bulk_value" class="text-muted small mb-0">
+                        <i class="fa fa-magic me-1" title="Isi cepat" aria-hidden="true"/>
+                        Isi cepat sel kosong:
+                    </label>
+                    <input id="vs_bulk_value" type="number" step="any" min="1"
+                           class="form-control form-control-sm vs-num scoring-matrix__bulk-input"
+                           placeholder="nilai"
+                           t-model="state.bulkValue"
+                           t-att-disabled="state.bulkBusy"/>
+                    <button class="btn btn-sm btn-outline-primary"
+                            t-on-click="bulkFillEmpty"
+                            t-att-disabled="state.bulkBusy">
+                        <i t-att-class="state.bulkBusy ? 'fa fa-spinner fa-spin me-1' : 'fa fa-paint-brush me-1'"
+                           aria-hidden="true"/>
+                        Terapkan
+                    </button>
+                    <span class="text-muted small">
+                        Hanya mengisi sel yang masih kosong (Benefit 1-100, Cost &gt; 0). Bisa diubah manual setelahnya.
+                    </span>
+                </div>
+
                 <!-- No Data -->
                 <div t-if="state.vendors.length === 0" class="alert alert-info">
-                    <i class="fa fa-info-circle"/> Belum ada pemasok untuk dievaluasi.
+                    <i class="fa fa-info-circle" title="Info" aria-hidden="true"/> Belum ada pemasok untuk dievaluasi.
                 </div>
 
                 <!-- Matrix Table -->
@@ -77,7 +101,8 @@
                                             <input type="number"
                                                    t-att-class="getCellClass(vendor, criterion.id)"
                                                    t-att-value="getScoreValue(vendor, criterion.id) || ''"
-                                                   t-att-placeholder="isCellEmpty(vendor, criterion.id) ? '⌷' : ''"
+                                                   t-att-placeholder="isCellEmpty(vendor, criterion.id) ? '–' : ''"
+                                                   t-att-aria-label="'Skor ' + vendor.partner_name + ' untuk kriteria ' + criterion.name"
                                                    t-att-readonly="isReadonly"
                                                    t-att-data-vendor-idx="vendor_index"
                                                    t-att-data-criterion-idx="criterion_index"
@@ -118,6 +143,33 @@
                                         </span>
                                         <br/>
                                         <span class="fw-bold"><t t-out="criterion.weight"/>%</span>
+                                    </td>
+                                </t>
+                                <td/>
+                            </tr>
+                            <!-- Nilai acuan SAW (Benefit→Maks, Cost→Min) + vendor pemiliknya -->
+                            <tr class="scoring-matrix__ref-row small">
+                                <td class="fw-semibold">
+                                    Nilai Acuan SAW
+                                    <i class="fa fa-info-circle text-muted ms-1"
+                                       title="Acuan normalisasi SAW per kriteria. Benefit memakai nilai MAKS (rᵢⱼ = xᵢⱼ / maks), Cost memakai nilai MIN (rᵢⱼ = min / xᵢⱼ)."
+                                       aria-hidden="true"/>
+                                </td>
+                                <t t-foreach="state.criteria" t-as="criterion" t-key="criterion.id">
+                                    <td class="text-center">
+                                        <t t-set="reference" t-value="getCriterionReference(criterion)"/>
+                                        <t t-if="reference">
+                                            <div>
+                                                <span class="scoring-matrix__ref-label"
+                                                      t-att-class="criterion.type === 'benefit' ? 'text-success' : 'text-danger'"
+                                                      t-out="reference.label"/>
+                                                <span class="fw-bold vs-num ms-1" t-out="reference.value"/>
+                                            </div>
+                                            <div class="scoring-matrix__ref-vendor text-truncate"
+                                                 t-att-title="reference.vendorName"
+                                                 t-out="reference.vendorName"/>
+                                        </t>
+                                        <span t-else="" class="text-muted">—</span>
                                     </td>
                                 </t>
                                 <td/>

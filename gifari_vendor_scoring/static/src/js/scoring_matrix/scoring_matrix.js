@@ -3,6 +3,7 @@
 import { Component, useState, onWillStart, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
+import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 import { _t } from "@web/core/l10n/translation";
 
 export class ScoringMatrixWidget extends Component {
@@ -21,9 +22,9 @@ export class ScoringMatrixWidget extends Component {
             loading: true,
             savingCells: {},
             periodState: "",
+            bulkValue: "",
+            bulkBusy: false,
         });
-
-        this.saveTimers = {};
 
         onWillStart(async () => {
             await this.loadMatrixData();
@@ -81,10 +82,35 @@ export class ScoringMatrixWidget extends Component {
         return !!this.state.savingCells[lineId];
     }
 
+    /**
+     * Aturan rentang skor: Benefit 1-100, Cost > 0. Nilai 0/kosong dianggap
+     * "belum diisi" (bukan invalid). Mengembalikan true bila valid.
+     */
+    isScoreInRange(scoreValue, criterionType) {
+        if (scoreValue === 0) {
+            return true; // kosong/belum diisi
+        }
+        if (criterionType === "benefit") {
+            return scoreValue >= 1 && scoreValue <= 100;
+        }
+        return scoreValue > 0; // cost
+    }
+
+    /**
+     * Border merah dikelola secara imperatif (DOM langsung), BUKAN lewat
+     * reactive state. Sebabnya: OWL meng-compile <input t-att-value> sebagai
+     * property dan memaksa set ulang `input.value` pada setiap re-render,
+     * sehingga me-render ulang saat user mengetik akan mengembalikan nilai sel
+     * ke nilai tersimpan (membuat sel tidak bisa diubah).
+     */
+    _setCellValidity(inputElement, isValid) {
+        inputElement.classList.toggle("scoring-matrix__cell-input--invalid", !isValid);
+    }
+
     getCellClass(vendor, criterionId) {
         const scoreValue = this.getScoreValue(vendor, criterionId);
         const lineId = this.getLineId(vendor, criterionId);
-        const classes = ["scoring-matrix__cell-input"];
+        const classes = ["scoring-matrix__cell-input", "vs-num"];
         if (scoreValue <= 0) {
             classes.push("scoring-matrix__cell-input--empty");
         }
@@ -94,30 +120,56 @@ export class ScoringMatrixWidget extends Component {
         return classes.join(" ");
     }
 
+    /**
+     * Nilai acuan SAW per kriteria (live, mengikuti skor yang sudah diisi):
+     *  - Benefit → nilai MAKS (penyebut normalisasi: rᵢⱼ = xᵢⱼ / max).
+     *  - Cost    → nilai MIN  (pembilang normalisasi: rᵢⱼ = min / xᵢⱼ).
+     * Mengembalikan nilai acuan beserta nama vendor pemiliknya, atau null
+     * jika belum ada skor terisi pada kolom kriteria tersebut.
+     */
+    getCriterionReference(criterion) {
+        const isBenefit = criterion.type === "benefit";
+        let best = null;
+        for (const vendor of this.state.vendors) {
+            const scoreValue = this.getScoreValue(vendor, criterion.id);
+            if (scoreValue <= 0) {
+                continue;
+            }
+            if (
+                best === null ||
+                (isBenefit ? scoreValue > best.value : scoreValue < best.value)
+            ) {
+                best = { value: scoreValue, vendorName: vendor.partner_name };
+            }
+        }
+        if (best === null) {
+            return null;
+        }
+        return {
+            label: isBenefit ? _t("Maks") : _t("Min"),
+            value: best.value,
+            vendorName: best.vendorName,
+        };
+    }
+
     onCellInput(event, vendor, criterion) {
         const inputElement = event.target;
         const lineId = this.getLineId(vendor, criterion.id);
         if (!lineId) return;
 
-        const cellKey = `${lineId}`;
-        if (this.saveTimers[cellKey]) {
-            clearTimeout(this.saveTimers[cellKey]);
-        }
-
-        this.saveTimers[cellKey] = setTimeout(() => {
-            this.saveScore(inputElement, vendor, criterion, lineId);
-        }, 500);
+        // Validasi rentang langsung (border merah) saat mengetik — imperatif,
+        // tanpa menyentuh reactive state agar tidak memicu re-render.
+        // Penyimpanan dilakukan saat blur/navigasi, bukan saat mengetik, supaya
+        // re-render (yang memaksa set ulang input.value di OWL) tidak mereset
+        // angka yang sedang diketik.
+        const typedValue = parseFloat(inputElement.value) || 0;
+        this._setCellValidity(inputElement, this.isScoreInRange(typedValue, criterion.type));
     }
 
     onCellBlur(event, vendor, criterion) {
         const inputElement = event.target;
         const lineId = this.getLineId(vendor, criterion.id);
         if (!lineId) return;
-
-        const cellKey = `${lineId}`;
-        if (this.saveTimers[cellKey]) {
-            clearTimeout(this.saveTimers[cellKey]);
-        }
         this.saveScore(inputElement, vendor, criterion, lineId);
     }
 
@@ -176,20 +228,16 @@ export class ScoringMatrixWidget extends Component {
     async saveScore(inputElement, vendor, criterion, lineId) {
         const parsedScore = parseFloat(inputElement.value) || 0;
 
-        if (criterion.type === "benefit" && parsedScore !== 0 && (parsedScore < 1 || parsedScore > 100)) {
-            this.notification.add(
-                _t("Skor kriteria '%s' (Benefit) harus antara 1-100.", criterion.name),
-                { type: "warning" }
-            );
+        if (!this.isScoreInRange(parsedScore, criterion.type)) {
+            this._setCellValidity(inputElement, false);
+            const rangeMessage =
+                criterion.type === "benefit"
+                    ? _t("Skor kriteria '%s' (Benefit) harus antara 1-100.", criterion.name)
+                    : _t("Skor kriteria '%s' (Cost) harus lebih dari 0.", criterion.name);
+            this.notification.add(rangeMessage, { type: "warning" });
             return;
         }
-        if (criterion.type === "cost" && parsedScore < 0) {
-            this.notification.add(
-                _t("Skor kriteria '%s' (Cost) harus lebih dari 0.", criterion.name),
-                { type: "warning" }
-            );
-            return;
-        }
+        this._setCellValidity(inputElement, true);
 
         const previousScore = this.getScoreValue(vendor, criterion.id);
         if (parsedScore === previousScore) return;
@@ -227,10 +275,46 @@ export class ScoringMatrixWidget extends Component {
         if (!vendor.total_criteria) return 0;
         return Math.round((vendor.filled_count / vendor.total_criteria) * 100);
     }
+
+    async bulkFillEmpty() {
+        const bulkValue = parseFloat(this.state.bulkValue) || 0;
+        if (bulkValue <= 0) {
+            this.notification.add(_t("Masukkan nilai lebih dari 0 untuk diisi cepat."), {
+                type: "warning",
+            });
+            return;
+        }
+
+        this.state.bulkBusy = true;
+        try {
+            const result = await this.orm.call(
+                "scoring.period",
+                "bulk_fill_empty_scores",
+                [this.periodId, bulkValue]
+            );
+            const filledCount = result.filled_count || 0;
+            await this.loadMatrixData();
+            if (filledCount > 0) {
+                this.notification.add(
+                    _t("%s sel kosong terisi dengan nilai %s.", filledCount, bulkValue),
+                    { type: "success" }
+                );
+            } else {
+                this.notification.add(
+                    _t("Tidak ada sel yang terisi (nilai tidak valid untuk tipe kriteria, atau semua sel sudah terisi)."),
+                    { type: "info" }
+                );
+            }
+        } catch (bulkError) {
+            this.notification.add(_t("Gagal mengisi sel secara massal."), { type: "danger" });
+            console.error("Bulk fill error:", bulkError);
+        }
+        this.state.bulkBusy = false;
+    }
 }
 
 ScoringMatrixWidget.props = {
-    record: { type: Object },
+    ...standardWidgetProps,
 };
 
 export const scoringMatrixWidget = {

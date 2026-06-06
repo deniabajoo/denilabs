@@ -4,6 +4,18 @@ from odoo import fields, models
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    vendor_category = fields.Selection(
+        selection=[
+            ('baja', 'Baja & Struktur'),
+            ('beton', 'Beton & Material'),
+            ('alat_berat', 'Alat Berat'),
+            ('bbm_kimia', 'BBM & Kimia'),
+            ('logistik', 'Logistik'),
+            ('other', 'Lainnya'),
+        ],
+        string="Kategori Vendor",
+        help="Bidang pengadaan vendor, dipakai untuk mengelompokkan pemasok pada evaluasi.",
+    )
     vendor_score_count = fields.Integer(
         string="Jumlah Evaluasi",
         compute='_compute_vendor_score_count',

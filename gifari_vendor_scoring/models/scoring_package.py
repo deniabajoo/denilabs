@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class ScoringPackage(models.Model):
@@ -25,3 +26,15 @@ class ScoringPackage(models.Model):
         default=lambda self: self.env.company,
         required=True,
     )
+
+    @api.constrains('line_ids')
+    def _check_total_weight(self):
+        for package in self:
+            if not package.line_ids:
+                continue
+            total_weight = sum(package.line_ids.mapped('weight'))
+            if abs(total_weight - 100.0) > 0.01:
+                raise ValidationError(
+                    "Total bobot kriteria pada paket '%s' harus tepat 100%%. "
+                    "Saat ini: %.2f%%." % (package.name, total_weight)
+                )

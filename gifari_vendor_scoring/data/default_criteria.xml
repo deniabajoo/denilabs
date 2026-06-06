@@ -58,7 +58,11 @@ Skala 1-100: Semakin tinggi skor = semakin responsif</field>
 
         <record id="package_default_5c" model="scoring.package">
             <field name="name">Paket Standar (5 Kriteria) — Konstruksi</field>
+            <!-- (5, 0, 0) clears existing lines first so module updates stay
+                 idempotent; without it, -u re-appends lines and doubles the
+                 total weight to 200%, breaking the 100% constraint. -->
             <field name="line_ids" eval="[
+                (5, 0, 0),
                 (0, 0, {'criterion_id': ref('criterion_quality'), 'weight': 30.0}),
                 (0, 0, {'criterion_id': ref('criterion_price'), 'weight': 25.0}),
                 (0, 0, {'criterion_id': ref('criterion_delivery'), 'weight': 25.0}),
