@@ -8,6 +8,17 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="period">
                 <t t-call="web.basic_layout">
+                    <!-- Paksa font sistem: font tema Odoo (mis. Lato) tidak
+                         tersedia/ gagal di-fetch oleh wkhtmltopdf di sebagian OS
+                         (mis. macOS) sehingga teks tampil kosong walau border &
+                         background tetap render. Stack sistem ini selalu ada. -->
+                    <style>
+                        .page, .page * {
+                            font-family: Arial, Helvetica, "Liberation Sans", sans-serif !important;
+                            color: #000;
+                        }
+                        .page table th { color: #fff !important; }
+                    </style>
                     <div class="page position-relative">
                         <!-- Watermark -->
                         <div t-if="period.state == 'validated'" class="position-absolute" 

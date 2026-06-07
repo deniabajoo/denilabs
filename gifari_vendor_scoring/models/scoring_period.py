@@ -44,6 +44,7 @@ class ScoringPeriod(models.Model):
     state = fields.Selection(
         selection=[
             ('draft', 'Draft'),
+            ('vendor_selection', 'Pemilihan Pemasok'),
             ('scoring', 'Penilaian'),
             ('calculated', 'Terhitung'),
             ('validated', 'Tervalidasi'),
@@ -115,10 +116,20 @@ class ScoringPeriod(models.Model):
         string="Jumlah Pemasok Dipilih",
         compute='_compute_setup_counts',
     )
+    is_ready_for_selection = fields.Boolean(
+        string="Siap Pilih Vendor",
+        compute='_compute_is_ready_for_selection',
+        help="Benar jika tanggal terisi dan bobot kriteria tepat 100% (siap lanjut ke pemilihan vendor).",
+    )
     is_ready_to_start = fields.Boolean(
         string="Siap Dinilai",
         compute='_compute_is_ready_to_start',
         help="Benar jika tanggal terisi, bobot kriteria 100%, dan minimal 2 pemasok dipilih.",
+    )
+    partner_selection_summary = fields.Char(
+        string="Ringkasan Pemilihan",
+        compute='_compute_partner_selection_summary',
+        help="Ringkasan jumlah pemasok terpilih per kategori.",
     )
     total_weight = fields.Float(
         string="Total Bobot (%)",
@@ -173,6 +184,15 @@ class ScoringPeriod(models.Model):
             period.criterion_count = len(period.period_criterion_ids)
             period.partner_selected_count = len(period.partner_ids)
 
+    @api.depends('date_from', 'date_to', 'is_weight_valid')
+    def _compute_is_ready_for_selection(self):
+        for period in self:
+            period.is_ready_for_selection = bool(
+                period.date_from
+                and period.date_to
+                and period.is_weight_valid
+            )
+
     @api.depends('date_from', 'date_to', 'is_weight_valid', 'partner_ids')
     def _compute_is_ready_to_start(self):
         for period in self:
@@ -181,6 +201,21 @@ class ScoringPeriod(models.Model):
                 and period.date_to
                 and period.is_weight_valid
                 and len(period.partner_ids) >= 2
+            )
+
+    @api.depends('partner_ids', 'partner_ids.vendor_category')
+    def _compute_partner_selection_summary(self):
+        category_labels = dict(
+            self.env['res.partner']._fields['vendor_category'].selection
+        )
+        for period in self:
+            count_per_category = {}
+            for partner in period.partner_ids:
+                category_key = partner.vendor_category or 'other'
+                count_per_category[category_key] = count_per_category.get(category_key, 0) + 1
+            period.partner_selection_summary = " · ".join(
+                "%s: %d" % (category_labels.get(category_key, 'Lainnya'), category_count)
+                for category_key, category_count in count_per_category.items()
             )
 
     @api.onchange('package_id')
@@ -265,6 +300,30 @@ class ScoringPeriod(models.Model):
             'views': [(False, 'form')],
             'target': 'current',
         }
+
+    def action_to_vendor_selection(self):
+        """Draft → Pemilihan Vendor: kunci konfigurasi kriteria & bobot.
+
+        Tahap pemilihan pemasok dipisahkan agar setup kriteria/bobot dan
+        pemilihan vendor tidak bercampur dalam satu layar.
+        """
+        self.ensure_one()
+        if not (self.date_from and self.date_to):
+            raise UserError("Lengkapi Tanggal Mulai dan Tanggal Akhir periode terlebih dahulu.")
+        if not self.period_criterion_ids:
+            raise UserError("Silakan pilih minimal satu kriteria evaluasi terlebih dahulu.")
+        if not self.is_weight_valid:
+            raise UserError(
+                "Total bobot kriteria harus tepat 100%%. Saat ini: %.2f%%." % self.total_weight
+            )
+        self.write({'state': 'vendor_selection'})
+        return self._reload_form_view()
+
+    def action_back_to_draft(self):
+        """Pemilihan Vendor → Draft: kembali untuk merevisi kriteria/bobot."""
+        self.ensure_one()
+        self.write({'state': 'draft'})
+        return self._reload_form_view()
 
     def action_start_scoring(self):
         """Mulai proses penilaian: generate vendor score lines dari partner_ids."""
