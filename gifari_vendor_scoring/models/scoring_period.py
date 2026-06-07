@@ -3,6 +3,24 @@ from datetime import timedelta
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+# Band kualitatif untuk skor akhir SAW (final_score ∈ [0, 1]).
+# Membantu pengambil keputusan membaca skor 4-desimal sebagai "kelas" cepat.
+# Urut menurun: ambang pertama yang terpenuhi dipakai.
+SCORE_BANDS = [
+    (0.85, 'Sangat Baik', 'success'),
+    (0.70, 'Baik', 'primary'),
+    (0.55, 'Cukup', 'warning'),
+    (0.0, 'Kurang', 'danger'),
+]
+
+
+def _saw_score_band(final_score):
+    """Kembalikan band kualitatif {label, tone} untuk satu skor akhir SAW."""
+    for threshold, label, tone in SCORE_BANDS:
+        if final_score >= threshold:
+            return {'label': label, 'tone': tone}
+    return {'label': 'Kurang', 'tone': 'danger'}
+
 
 class ScoringPeriod(models.Model):
     _name = 'scoring.period'
@@ -490,29 +508,23 @@ class ScoringPeriod(models.Model):
     def bulk_fill_empty_scores(self, value):
         """RPC endpoint: isi semua sel kosong dengan satu nilai (input cepat).
 
-        Hanya mengisi sel yang masih kosong (raw_score <= 0) dan hanya jika
-        nilai valid untuk tipe kriterianya (Benefit 1-100, Cost > 0). Sel yang
-        tidak valid untuk tipenya dilewati. Mengembalikan jumlah sel terisi.
+        Hanya mengisi sel yang masih kosong (raw_score <= 0). Skala seragam
+        1-100 untuk semua tipe kriteria (Benefit & Cost) — arah "baik"
+        ditentukan saat normalisasi SAW (Cost: nilai lebih rendah lebih baik).
+        Mengembalikan jumlah sel terisi.
         """
         self.ensure_one()
         if self.state != 'scoring':
             raise UserError("Skor hanya bisa diisi saat status Penilaian.")
 
         parsed_value = float(value or 0)
-        criterion_type_by_id = {
-            period_criterion.criterion_id.id: period_criterion.criterion_type
-            for period_criterion in self.period_criterion_ids
-        }
+        if not (1.0 <= parsed_value <= 100.0):
+            return {'filled_count': 0}
 
         filled_count = 0
         for vendor_score in self.vendor_score_ids:
             for score_line in vendor_score.score_line_ids:
                 if score_line.raw_score > 0:
-                    continue
-                criterion_type = criterion_type_by_id.get(score_line.criterion_id.id)
-                if criterion_type == 'benefit' and not (1.0 <= parsed_value <= 100.0):
-                    continue
-                if criterion_type == 'cost' and parsed_value <= 0:
                     continue
                 score_line.raw_score = parsed_value
                 filled_count += 1
@@ -580,18 +592,45 @@ class ScoringPeriod(models.Model):
             criteria_names = [
                 c.criterion_id.name for c in latest_validated.period_criterion_ids.sorted('sequence')
             ]
-            for vendor_score in latest_validated.vendor_score_ids.sorted('rank'):
+
+            # Peta peringkat dari periode tervalidasi sebelumnya (untuk indikator
+            # pergerakan naik/turun per vendor di leaderboard).
+            previous_validated = available_periods.filtered(
+                lambda period: period.id != latest_validated.id
+                and period.date_to < latest_validated.date_to
+            )[:1]
+            previous_rank_by_partner = {
+                vendor_score.partner_id.id: vendor_score.rank
+                for vendor_score in previous_validated.vendor_score_ids
+            } if previous_validated else {}
+
+            sorted_vendor_scores = latest_validated.vendor_score_ids.sorted('rank')
+            top_final_score = sorted_vendor_scores[:1].final_score if sorted_vendor_scores else 0.0
+
+            for vendor_score in sorted_vendor_scores:
                 weighted_per_criterion = {}
                 for score_line in vendor_score.score_line_ids:
                     weighted_per_criterion[score_line.criterion_id.name] = score_line.weighted_score
 
+                previous_rank = previous_rank_by_partner.get(vendor_score.partner_id.id)
+                rank_movement = (
+                    None if previous_rank is None
+                    else previous_rank - vendor_score.rank  # + naik, - turun, 0 tetap
+                )
+
                 vendor_entry = {
+                    'vendor_score_id': vendor_score.id,
+                    'partner_id': vendor_score.partner_id.id,
                     'rank': vendor_score.rank,
                     'partner_name': vendor_score.partner_id.name,
                     'final_score': vendor_score.final_score,
                     'is_recommended': vendor_score.is_recommended,
                     'rank_display': vendor_score.rank_display,
                     'criteria_scores': weighted_per_criterion,
+                    'delta_to_top': round(top_final_score - vendor_score.final_score, 4),
+                    'score_band': _saw_score_band(vendor_score.final_score),
+                    'rank_movement': rank_movement,
+                    'has_previous': previous_rank is not None,
                 }
                 comparison_chart_vendors.append(vendor_entry)
                 if vendor_score.rank <= 5:
@@ -615,6 +654,45 @@ class ScoringPeriod(models.Model):
                 'vendor_count': len(period.vendor_score_ids),
             })
 
+        # Keunggulan pemenang vs runner-up: sinyal kepercayaan keputusan.
+        # Margin tipis = perlu kehati-hatian; margin lebar = pemenang jelas.
+        winner_margin = 0.0
+        winner_margin_percent = 0.0
+        runner_up_name = ''
+        if len(comparison_chart_vendors) >= 2:
+            winner_entry = comparison_chart_vendors[0]
+            runner_up_entry = comparison_chart_vendors[1]
+            winner_margin = round(winner_entry['final_score'] - runner_up_entry['final_score'], 4)
+            winner_margin_percent = round(
+                winner_margin / winner_entry['final_score'] * 100, 1
+            ) if winner_entry['final_score'] else 0.0
+            runner_up_name = runner_up_entry['partner_name']
+
+        # Alasan rekomendasi: di berapa kriteria pemenang punya skor terbobot
+        # tertinggi (termasuk seri). Memberi justifikasi singkat di dashboard.
+        recommendation_reason = ''
+        top_vendor_band = None
+        if comparison_chart_vendors and criteria_names:
+            winner_entry = comparison_chart_vendors[0]
+            top_vendor_band = winner_entry['score_band']
+            winning_criteria = []
+            for criterion_name in criteria_names:
+                best_weighted = max(
+                    vendor_entry['criteria_scores'].get(criterion_name, 0.0)
+                    for vendor_entry in comparison_chart_vendors
+                )
+                winner_weighted = winner_entry['criteria_scores'].get(criterion_name, 0.0)
+                if best_weighted > 0 and winner_weighted >= best_weighted:
+                    winning_criteria.append(criterion_name)
+            if winning_criteria:
+                leading_criteria = ', '.join(winning_criteria[:2])
+                recommendation_reason = (
+                    "Unggul di %d dari %d kriteria (mis. %s)."
+                    % (len(winning_criteria), len(criteria_names), leading_criteria)
+                )
+            else:
+                recommendation_reason = "Skor akhir tertinggi pada periode ini."
+
         return {
             'active_period': {
                 'id': active_scoring.id,
@@ -630,6 +708,12 @@ class ScoringPeriod(models.Model):
                 'total_periods': total_periods,
                 'top_vendor_name': top_vendors[0]['partner_name'] if top_vendors else '-',
                 'top_vendor_score': top_vendors[0]['final_score'] if top_vendors else 0,
+                'top_vendor_band': top_vendor_band,
+                'winner_margin': winner_margin,
+                'winner_margin_percent': winner_margin_percent,
+                'runner_up_name': runner_up_name,
+                'recommendation_reason': recommendation_reason,
+                'vendor_evaluated_count': len(comparison_chart_vendors),
             },
             'top_vendors': top_vendors,
             'period_trend': period_trend,

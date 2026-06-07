@@ -52,7 +52,7 @@
                         Terapkan
                     </button>
                     <span class="text-muted small">
-                        Hanya mengisi sel yang masih kosong (Benefit 1-100, Cost &gt; 0). Bisa diubah manual setelahnya.
+                        Hanya mengisi sel yang masih kosong (skala 1-100; Cost: nilai lebih rendah lebih baik). Bisa diubah manual setelahnya.
                     </span>
                 </div>
 
@@ -106,8 +106,7 @@
                                                    t-att-readonly="isReadonly"
                                                    t-att-data-vendor-idx="vendor_index"
                                                    t-att-data-criterion-idx="criterion_index"
-                                                   t-att-min="criterion.type === 'benefit' ? 1 : 0.01"
-                                                   t-att-max="criterion.type === 'benefit' ? 100 : ''"
+                                                   min="1" max="100"
                                                    step="any"
                                                    t-on-input="(ev) => this.onCellInput(ev, vendor, criterion)"
                                                    t-on-blur="(ev) => this.onCellBlur(ev, vendor, criterion)"

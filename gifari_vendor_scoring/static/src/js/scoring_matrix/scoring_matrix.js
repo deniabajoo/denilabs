@@ -83,17 +83,16 @@ export class ScoringMatrixWidget extends Component {
     }
 
     /**
-     * Aturan rentang skor: Benefit 1-100, Cost > 0. Nilai 0/kosong dianggap
-     * "belum diisi" (bukan invalid). Mengembalikan true bila valid.
+     * Aturan rentang skor: skala seragam 1-100 untuk Benefit maupun Cost.
+     * Nilai 0/kosong dianggap "belum diisi" (bukan invalid). Arah "baik"
+     * ditentukan saat normalisasi SAW (Cost: nilai lebih rendah lebih baik),
+     * bukan saat input. Mengembalikan true bila valid.
      */
-    isScoreInRange(scoreValue, criterionType) {
+    isScoreInRange(scoreValue) {
         if (scoreValue === 0) {
             return true; // kosong/belum diisi
         }
-        if (criterionType === "benefit") {
-            return scoreValue >= 1 && scoreValue <= 100;
-        }
-        return scoreValue > 0; // cost
+        return scoreValue >= 1 && scoreValue <= 100;
     }
 
     /**
@@ -163,7 +162,7 @@ export class ScoringMatrixWidget extends Component {
         // re-render (yang memaksa set ulang input.value di OWL) tidak mereset
         // angka yang sedang diketik.
         const typedValue = parseFloat(inputElement.value) || 0;
-        this._setCellValidity(inputElement, this.isScoreInRange(typedValue, criterion.type));
+        this._setCellValidity(inputElement, this.isScoreInRange(typedValue));
     }
 
     onCellBlur(event, vendor, criterion) {
@@ -228,12 +227,12 @@ export class ScoringMatrixWidget extends Component {
     async saveScore(inputElement, vendor, criterion, lineId) {
         const parsedScore = parseFloat(inputElement.value) || 0;
 
-        if (!this.isScoreInRange(parsedScore, criterion.type)) {
+        if (!this.isScoreInRange(parsedScore)) {
             this._setCellValidity(inputElement, false);
             const rangeMessage =
                 criterion.type === "benefit"
-                    ? _t("Skor kriteria '%s' (Benefit) harus antara 1-100.", criterion.name)
-                    : _t("Skor kriteria '%s' (Cost) harus lebih dari 0.", criterion.name);
+                    ? _t("Skor kriteria '%s' (Benefit) harus antara 1-100 (lebih tinggi lebih baik).", criterion.name)
+                    : _t("Skor kriteria '%s' (Cost) harus antara 1-100 (lebih rendah lebih baik).", criterion.name);
             this.notification.add(rangeMessage, { type: "warning" });
             return;
         }

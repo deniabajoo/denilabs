@@ -56,23 +56,25 @@ class VendorScoreLine(models.Model):
 
     @api.constrains('raw_score')
     def _check_raw_score_range(self):
+        # Skala seragam 1-100 untuk Benefit maupun Cost. Arah "baik" ditentukan
+        # saat normalisasi SAW: Benefit → nilai lebih tinggi lebih baik (x/maks),
+        # Cost → nilai lebih rendah lebih baik (min/x).
         for line in self:
             if not line.raw_score:
                 continue
-            if line.criterion_type == 'cost':
-                if line.raw_score <= 0:
-                    raise ValidationError(
-                        "Skor untuk kriteria '%s' (Cost) harus lebih dari 0. "
-                        "Nilai yang dimasukkan: %.2f." % (
-                            line.criterion_id.name,
-                            line.raw_score,
-                        )
-                    )
-            elif line.raw_score < 1.0 or line.raw_score > 100.0:
+            if line.raw_score < 1.0 or line.raw_score > 100.0:
+                direction = (
+                    "nilai lebih rendah berarti lebih baik"
+                    if line.criterion_type == 'cost'
+                    else "nilai lebih tinggi berarti lebih baik"
+                )
+                criterion_label = 'Cost' if line.criterion_type == 'cost' else 'Benefit'
                 raise ValidationError(
-                    "Skor untuk kriteria '%s' harus antara 1 dan 100. "
+                    "Skor untuk kriteria '%s' (%s) harus antara 1 dan 100 — %s. "
                     "Nilai yang dimasukkan: %.2f." % (
                         line.criterion_id.name,
+                        criterion_label,
+                        direction,
                         line.raw_score,
                     )
                 )

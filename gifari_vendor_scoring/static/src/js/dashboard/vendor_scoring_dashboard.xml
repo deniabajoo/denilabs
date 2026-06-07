@@ -38,6 +38,19 @@
                     </div>
                 </div>
 
+                <!-- Guided empty state: belum ada periode tervalidasi -->
+                <div t-if="!state.latest_period" class="vs-dashboard__empty text-center p-5 mb-4">
+                    <i class="fa fa-trophy fa-3x text-warning mb-3" aria-hidden="true"/>
+                    <h4 class="mb-1">Belum ada periode tervalidasi</h4>
+                    <p class="text-muted mb-3">
+                        Hasil perangkingan akan muncul di sini setelah sebuah periode evaluasi
+                        dihitung dan divalidasi.
+                    </p>
+                    <button class="btn btn-primary" t-on-click="openPeriodList">
+                        <i class="fa fa-plus me-1" aria-hidden="true"/> Buka Periode Evaluasi
+                    </button>
+                </div>
+
                 <!-- KPI Cards -->
                 <div class="row g-3 mb-4">
                     <!-- Active Period -->
@@ -72,19 +85,6 @@
                         </div>
                     </div>
 
-                    <!-- Total Periods -->
-                    <div class="col-lg-3 col-md-6">
-                        <div class="vs-dashboard__kpi-card card h-100">
-                            <div class="card-body text-center">
-                                <div class="vs-dashboard__kpi-icon mb-2">
-                                    <i class="fa fa-calendar-check-o fa-2x text-success" aria-hidden="true"/>
-                                </div>
-                                <h3 class="mb-0 vs-dashboard__metric" t-out="state.kpis.total_periods"/>
-                                <div class="vs-dashboard__kpi-label">Periode Tervalidasi</div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Top Vendor -->
                     <div class="col-lg-3 col-md-6">
                         <div class="vs-dashboard__kpi-card card h-100 border-warning">
@@ -93,12 +93,15 @@
                                     <i class="fa fa-trophy fa-2x text-warning" aria-hidden="true"/>
                                 </div>
                                 <h5 class="mb-0" t-out="state.kpis.top_vendor_name"/>
+                                <span t-if="state.kpis.top_vendor_band" class="badge rounded-pill mt-1"
+                                      t-attf-class="text-bg-#{state.kpis.top_vendor_band.tone}"
+                                      t-out="state.kpis.top_vendor_band.label"/>
                                 <div class="vs-dashboard__kpi-label">Vendor Terbaik</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Top Score -->
+                    <!-- Top Score (skor + persen + band) -->
                     <div class="col-lg-3 col-md-6">
                         <div class="vs-dashboard__kpi-card card h-100">
                             <div class="card-body text-center">
@@ -108,9 +111,56 @@
                                 <h3 class="mb-0 vs-dashboard__metric">
                                     <t t-out="state.kpis.top_vendor_score ? state.kpis.top_vendor_score.toFixed(4) : '—'"/>
                                 </h3>
+                                <small class="text-muted" t-if="state.kpis.top_vendor_score">
+                                    setara <t t-out="Math.round(state.kpis.top_vendor_score * 100)"/>%
+                                </small>
                                 <div class="vs-dashboard__kpi-label">Skor Tertinggi</div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Margin of Victory: keunggulan #1 vs runner-up -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="vs-dashboard__kpi-card card h-100">
+                            <div class="card-body text-center">
+                                <div class="vs-dashboard__kpi-icon mb-2">
+                                    <i class="fa fa-line-chart fa-2x text-primary" aria-hidden="true"/>
+                                </div>
+                                <div t-if="state.kpis.winner_margin">
+                                    <h3 class="mb-0 vs-dashboard__metric">+<t t-out="state.kpis.winner_margin.toFixed(4)"/></h3>
+                                    <small class="text-muted">
+                                        <t t-out="state.kpis.winner_margin_percent"/>% di atas
+                                        <t t-out="state.kpis.runner_up_name"/>
+                                    </small>
+                                </div>
+                                <h3 t-else="" class="mb-0 vs-dashboard__metric">—</h3>
+                                <div class="vs-dashboard__kpi-label">Keunggulan #1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation strip: keputusan + alasan + drill-down -->
+                <div t-if="state.kpis.recommendation_reason and state.latest_period"
+                     class="vs-dashboard__reco card mb-4">
+                    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                        <div class="vs-dashboard__reco-icon">
+                            <i class="fa fa-trophy fa-2x" aria-hidden="true"/>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="text-uppercase small fw-bold text-muted">Rekomendasi Periode</div>
+                            <div class="fs-5 fw-bold">
+                                <t t-out="state.kpis.top_vendor_name"/>
+                                <span t-if="state.kpis.top_vendor_band" class="badge rounded-pill ms-2"
+                                      t-attf-class="text-bg-#{state.kpis.top_vendor_band.tone}"
+                                      t-out="state.kpis.top_vendor_band.label"/>
+                            </div>
+                            <div class="text-muted" t-out="state.kpis.recommendation_reason"/>
+                        </div>
+                        <button class="btn btn-primary" t-if="state.top_vendors.length"
+                                t-on-click="() => this.openVendorScore(state.top_vendors[0].vendor_score_id)">
+                            <i class="fa fa-search me-1" aria-hidden="true"/> Lihat Rincian
+                        </button>
                     </div>
                 </div>
 
@@ -130,14 +180,33 @@
                                 </div>
                                 <ul class="list-group list-group-flush" t-if="state.top_vendors.length">
                                     <t t-foreach="state.top_vendors" t-as="vendor" t-key="vendor.rank">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <li class="list-group-item vs-leaderboard__item d-flex justify-content-between align-items-center"
+                                            role="button" tabindex="0"
+                                            t-att-title="'Lihat rincian skor ' + vendor.partner_name"
+                                            t-on-click="() => this.openVendorScore(vendor.vendor_score_id)">
                                             <div>
-                                                <span class="me-2 fw-bold" t-out="vendor.rank_display"/>
-                                                <span t-out="vendor.partner_name"/>
+                                                <div>
+                                                    <span class="me-2 fw-bold" t-out="vendor.rank_display"/>
+                                                    <span t-out="vendor.partner_name"/>
+                                                </div>
+                                                <small t-if="vendor.rank > 1" class="text-muted">
+                                                    Δ <t t-out="vendor.delta_to_top.toFixed(4)"/> dari #1
+                                                </small>
                                             </div>
-                                            <span class="badge text-bg-primary rounded-pill vs-leaderboard__score">
-                                                <t t-out="vendor.final_score.toFixed(4)"/>
-                                            </span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <t t-set="move" t-value="rankMovementInfo(vendor)"/>
+                                                <span class="vs-leaderboard__move small" t-att-class="move.cls"
+                                                      t-att-title="'Pergerakan peringkat vs periode sebelumnya'">
+                                                    <i class="fa" t-attf-class="fa #{move.icon}" aria-hidden="true"/>
+                                                    <t t-out="move.text"/>
+                                                </span>
+                                                <span class="badge rounded-pill"
+                                                      t-attf-class="text-bg-#{vendor.score_band.tone}"
+                                                      t-out="vendor.score_band.label"/>
+                                                <span class="badge text-bg-primary rounded-pill vs-leaderboard__score">
+                                                    <t t-out="vendor.final_score.toFixed(4)"/>
+                                                </span>
+                                            </div>
                                         </li>
                                     </t>
                                 </ul>

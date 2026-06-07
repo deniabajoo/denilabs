@@ -117,12 +117,49 @@ $vs-muted: #475569;
     }
 }
 
+/* Recommendation strip — the "decision" focal point (amber accent) */
+.vs-dashboard__reco {
+    border-radius: 14px;
+    border: 1px solid $vs-border;
+    background: linear-gradient(135deg, #fffbeb, #ffffff);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+
+    .vs-dashboard__reco-icon {
+        width: 56px;
+        height: 56px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: rgba(245, 158, 11, 0.15);
+        color: $vs-amber;
+        flex: 0 0 auto;
+    }
+}
+
+/* Guided empty state */
+.vs-dashboard__empty {
+    border: 1px dashed $vs-border;
+    border-radius: 14px;
+    background: #ffffff;
+    color: $vs-muted;
+}
+
 /* Leaderboard — medal accents on the podium (top 3) */
 .vs-dashboard .list-group-item {
     border-left: 3px solid transparent;
     border-right: none;
     padding: 0.7rem 1rem;
     transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &.vs-leaderboard__item {
+        cursor: pointer;
+    }
+
+    .vs-leaderboard__move {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
 
     &:hover {
         background-color: #f1f5f9;

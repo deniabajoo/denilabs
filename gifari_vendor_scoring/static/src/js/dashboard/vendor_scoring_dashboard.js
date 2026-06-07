@@ -241,6 +241,34 @@ export class VendorScoringDashboard extends Component {
     openPeriodList() {
         this.action.doAction("gifari_vendor_scoring.action_scoring_period");
     }
+
+    // Drill-down: buka rincian skor satu vendor (popup) langsung dari leaderboard
+    // sehingga pengambil keputusan bisa melihat "kenapa" tanpa pindah menu.
+    openVendorScore(vendorScoreId) {
+        if (!vendorScoreId) return;
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: "vendor.score",
+            res_id: vendorScoreId,
+            views: [[false, "form"]],
+            target: "new",
+        });
+    }
+
+    // Info pergerakan peringkat vendor vs periode tervalidasi sebelumnya.
+    rankMovementInfo(vendor) {
+        if (!vendor.has_previous) {
+            return { icon: "fa-star-o", cls: "text-info", text: _t("Baru") };
+        }
+        const movement = vendor.rank_movement;
+        if (movement > 0) {
+            return { icon: "fa-arrow-up", cls: "text-success", text: `+${movement}` };
+        }
+        if (movement < 0) {
+            return { icon: "fa-arrow-down", cls: "text-danger", text: `${movement}` };
+        }
+        return { icon: "fa-minus", cls: "text-muted", text: _t("Tetap") };
+    }
 }
 
 registry.category("actions").add("vendor_scoring_dashboard", VendorScoringDashboard);
