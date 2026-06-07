@@ -636,24 +636,6 @@ class ScoringPeriod(models.Model):
                 if vendor_score.rank <= 5:
                     top_vendors.append(vendor_entry)
 
-        validated_periods = self.search([
-            ('state', '=', 'validated'),
-            ('company_id', '=', company_id),
-        ], order='date_from asc', limit=8)
-
-        period_trend = []
-        for period in validated_periods:
-            all_final_scores = period.vendor_score_ids.mapped('final_score')
-            top_vendor_score = period.vendor_score_ids.filtered(lambda vs: vs.rank == 1)[:1]
-            period_trend.append({
-                'name': period.name,
-                'top_score': top_vendor_score.final_score if top_vendor_score else 0,
-                'avg_score': round(
-                    sum(all_final_scores) / len(all_final_scores), 4
-                ) if all_final_scores else 0,
-                'vendor_count': len(period.vendor_score_ids),
-            })
-
         # Keunggulan pemenang vs runner-up: sinyal kepercayaan keputusan.
         # Margin tipis = perlu kehati-hatian; margin lebar = pemenang jelas.
         winner_margin = 0.0
@@ -716,7 +698,6 @@ class ScoringPeriod(models.Model):
                 'vendor_evaluated_count': len(comparison_chart_vendors),
             },
             'top_vendors': top_vendors,
-            'period_trend': period_trend,
             'comparison_data': comparison_chart_vendors,
             'criteria_names': criteria_names,
             'available_periods': [

@@ -231,40 +231,6 @@
                     </div>
                 </div>
 
-                <!-- Radar + Trend Row -->
-                <div class="row g-3">
-                    <!-- Radar: criteria profile -->
-                    <div class="col-lg-5">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <div class="vs-dashboard__chart-container">
-                                    <canvas t-ref="radarCanvas"
-                                            role="img"
-                                            aria-label="Profil kriteria tiga vendor teratas"/>
-                                </div>
-                                <div t-if="!state.comparison_data.length" class="text-center text-muted py-4">
-                                    Belum ada data profil kriteria.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Trend Chart -->
-                    <div class="col-lg-7">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <div class="vs-dashboard__chart-container">
-                                    <canvas t-ref="trendCanvas"
-                                            role="img"
-                                            aria-label="Trend skor antar periode"/>
-                                </div>
-                                <div t-if="!state.period_trend.length" class="text-center text-muted py-4">
-                                    Belum ada data trend. Validasi minimal 2 periode untuk melihat trend.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </t>
